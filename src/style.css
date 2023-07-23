@@ -326,6 +326,10 @@ svg {
   padding: 0 0.75rem;  
 }
 
+.card:hover .button:hover:after {
+  margin: 0.2rem
+}
+
 .card:hover .button:hover.duedate:after {
   content: 'Due Date & Time';
 }
