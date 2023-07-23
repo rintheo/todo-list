@@ -330,6 +330,10 @@ svg {
   content: 'Due Date & Time';
 }
 
+.card:hover .button:hover.list:after {
+  content: 'List';
+}
+
 .card:hover .button:hover.priority:after {
   content: 'Set Priority';
 }
