@@ -1,0 +1,383 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Pacifico&display=swap');
+
+:root {
+  --color-1: white;
+  --color-1-hover: hsl(0, 0%, 97%);
+  --color-1-active: hsl(0, 0%, 94%);;
+  --color-2: hsl(0, 0%, 98%);
+  --color-2-hover: hsl(0, 0%, 95%);
+  --color-2-active: hsl(0, 0%, 92%);
+  --color-3: rgb(158, 210, 198);
+  --color-3-hover: hsl(166, 37%, 69%);
+  --color-3-active: hsl(166, 37%, 66%);
+  --color-3-selected: hsl(166, 37%, 67%);
+  --color-4: rgb(84, 186, 185);
+  --color-4-hover: hsl(179, 43%, 50%);
+  --color-4-active: hsl(179, 43%, 47%);
+  --header-height: 4rem;
+}
+
+*, *::after, *::before {
+  font-family: 'Open Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+html, body,
+h1, h2, h3, h4, h5, h6, 
+p, ul, ol, li, button {
+  margin: 0;
+  padding: 0;
+}
+
+ul, ol, li {
+  list-style: none;
+} 
+
+a {
+  text-decoration: none;
+}
+
+svg {
+  vertical-align: top;
+}
+
+/* -------------------------------------------------- */
+/* Header ------------------------------------------- */
+/* -------------------------------------------------- */
+
+.header {
+  position: relative;
+  height: var(--header-height);
+  padding: 0.25rem;
+  background-color: var(--color-4);
+  color: white;
+  box-shadow: 0 2px 2px rgb(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  z-index: 100;
+}
+
+.header h1{
+  position: relative;
+  bottom: 0.3rem;
+  padding: 0 4.5rem 0 0.25rem;
+  font-family: 'Pacifico', cursive;
+  font-weight: 200;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  height: 3rem;
+  width: 100%;
+  padding: 0 1rem 0 3rem;
+  background-color: var(--color-3);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.search-box input::placeholder {
+  color: white;
+}
+
+.search-box input:focus::placeholder{
+  color: lightgrey;
+}
+
+.search-box input:focus {
+  background-color: white;
+  color: grey;
+  outline: none;
+}
+
+.search-box input:focus + svg {
+  fill: grey;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 0.75rem;
+  height: 1.75rem;
+  fill: white;
+}
+
+.button {
+  border: none;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.header .button {
+  height: 3rem;
+  width: 3rem;
+  background-color: var(--color-4);
+}
+
+.header .button:hover {
+  background-color: var(--color-4-hover);
+}
+
+.header .button:active {
+  background-color: var(--color-4-active);
+}
+
+.button svg {
+  height: 1.75rem;
+  fill: white;
+}
+
+#buttonSidebar {
+  margin-left: 0.5rem;
+}
+
+#buttonUser {
+  margin: 0 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#buttonUser img {
+  height: 80%;
+  width: 80%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* -------------------------------------------------- */
+/* Sidebar ------------------------------------------ */
+/* -------------------------------------------------- */
+
+
+.sidebar {
+  height: 100%;
+  width: 250px;
+  padding: 0.5rem;
+  background-color: var(--color-2);
+}
+
+.sidebar h4 {
+  font-size: 1.25rem;
+}
+
+.sidebar p {
+  font-weight: 400;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  margin: 0.75rem 0;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.section-title:hover {
+  background-color: var(--color-2-hover);
+}
+
+.section-title:active {
+  background-color: var(--color-2-active);
+}
+
+.section-title h4 {
+  margin-right: auto;
+}
+
+.section-title .button {
+  height: 2rem;
+  width: 2rem;
+  background-color: transparent;
+}
+
+.section-title svg {
+  position: relative;
+  top: -0.05rem;
+  height: 1.5rem;
+  fill: hsl(0, 0%, 75%);
+}
+
+.section-title .button:hover svg{
+  fill: var(--color-4-hover);
+}
+
+.section-title .button:active svg{
+  fill: var(--color-4-active);
+}
+
+.sidebar li {
+  padding: 0.25rem 1rem;
+  color: hsl(0, 0%, 25%);
+  fill: hsl(0, 0%, 25%);
+  display: flex;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.sidebar li:last-child {
+  margin-bottom: 2rem;
+}
+
+.sidebar li:hover {
+  background-color: var(--color-2-hover);
+}
+
+.sidebar li.selected,
+.sidebar li:active {
+  background-color: var(--color-2-active);
+}
+
+.sidebar li > svg {
+  position: relative;
+  top: 0.1rem;
+  height: 1.25rem;
+}
+
+
+/* -------------------------------------------------- */
+/* Main --------------------------------------------- */
+/* -------------------------------------------------- */
+
+.main-container {
+  height: calc(100vh - var(--header-height));
+  display: flex;  
+}
+
+.main {
+  padding: 1.25rem 2rem;
+  flex: 1;
+  background-color: var(--color-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main h3 {
+  color: hsl(0, 0%, 50%);
+  font-weight: 600;
+}
+
+#mainToday .cards-container {
+  width: 1024px ;
+}
+
+.cards-container {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-row: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: auto;
+  gap: 1rem;
+}
+
+.card {
+  position: relative;
+  padding: 0.5rem 0.75rem 0.15rem 0.75rem;
+  box-shadow: 0 0 0 1px lightgrey, 2px 2px 2px rgb(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  user-select: none;  
+}
+
+.card h4 {
+  font-size: 1.1rem;
+}
+
+.card p {
+  color: hsl(0, 0%, 50%);
+  font-size: 0.9rem;
+}
+
+.buttons-container {
+  justify-self: end;
+  display: flex;
+  justify-content: end;
+}
+
+.card .button {
+  height: 2rem;
+  width: 2rem;
+  background-color: transparent;
+  opacity: 0;
+  transition: 0.25s;
+}
+
+.card:hover .button {
+  opacity: 1;
+  width: 2rem;
+  border-radius: 1.35rem;  
+  color: hsl(0, 0%, 50%);
+  white-space: nowrap;
+}
+
+.card:hover .button:hover {
+  background-color: var(--color-1-hover);
+  width: auto;
+  padding: 0 0.75rem;  
+}
+
+.card:hover .button:hover.duedate:after {
+  content: 'Due Date & Time';
+}
+
+.card:hover .button:hover.priority:after {
+  content: 'Set Priority';
+}
+
+.card:hover .button:hover.delete {
+  color: red;
+}
+
+.card:hover .button:hover.delete:after {
+  content: 'Delete Task';
+}
+
+.card:hover .button:active {
+  background-color: var(--color-1-active);
+}
+
+.card .button.done {
+  position: absolute;
+  top: -0.65rem;
+  left: -0.65rem;
+  height: 1.35rem;
+  width: 1.35rem;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .button.done:hover {
+  width: 1.35rem;
+  padding: 0;  
+}
+
+.card .button.done svg {
+  position: absolute;
+  height: 1.5rem;
+}
+
+.card svg {
+  height: 1.25rem;
+  fill: hsl(0, 0%, 75%);
+}
+
+.card:hover .button:hover svg {
+  fill: hsl(0, 0%, 50%);
+}
+
+.card:hover .button.delete:hover svg {
+  fill: red;
+}
