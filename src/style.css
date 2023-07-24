@@ -406,6 +406,12 @@ svg {
   font-size: 0.9rem;
 }
 
+.card h4.completed,
+.card p.completed {
+  text-decoration: line-through;
+  color: hsl(0, 0%, 75%);
+}
+
 .card .buttons-container {
   margin-top: auto;
   padding-top: 1rem;

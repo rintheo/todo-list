@@ -31,9 +31,8 @@ const clearCardsContainer = () => {
 }
 
 const fillCardsContainer = () => {
-  for (let task of todo.getTasks()) {
-    generateCard(task);
-  }
+  todo.getOngoingTasks().forEach(generateCard);
+  todo.getCompletedTasks().forEach(generateCard);
 }
 
 const regenerateCardsContainer = () => {
@@ -41,9 +40,36 @@ const regenerateCardsContainer = () => {
   fillCardsContainer();
 }
 
-const generateCard = (task) => {
+function getCardIndex(e) {
+  let cardIndex;
+  document
+      .querySelectorAll('.card')
+      .forEach(card => {
+          if (card.contains(e.target)) {
+              cardIndex = card.getAttribute('data-index');
+          };
+      });
+  return cardIndex;
+}
+
+const completeCard = (e) => {
+  const index = getCardIndex(e);
+  todo.getOngoingTasks()[index].toggleTaskCompletion();
+  todo.completeTask(index);
+  regenerateCardsContainer();
+}
+
+const uncompleteCard = (e) => {
+  const index = getCardIndex(e);
+  todo.getCompletedTasks()[index].toggleTaskCompletion();
+  todo.uncompleteTask(index);
+  regenerateCardsContainer();
+}
+
+const generateCard = (task, index) => {
   const card = document.createElement('div');
   card.classList.add('card');
+  card.dataset.index = index;
 
   const buttonDone = document.createElement('button');
   buttonDone.classList.add('button');
@@ -52,13 +78,24 @@ const generateCard = (task) => {
   const dummy = document.createElement('div');
   buttonDone.appendChild(dummy);
   
-  dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle-outline</title><path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>`;
-
   const h4 = document.createElement('h4');
   h4.textContent = task.title;
-
+  
   const p = document.createElement('p');
   p.textContent = task.description;
+
+  if (task.isCompleted) {
+    buttonDone.addEventListener('click', uncompleteCard);    
+    h4.classList.add('completed');  
+    p.classList.add('completed');    
+    dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check-circle-outline</title><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg>`;
+  }
+  else {
+    buttonDone.addEventListener('click', completeCard);    
+    h4.classList.add('remove');  
+    p.classList.add('remove');    
+    dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle-outline</title><path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>`;
+  }
 
   const buttonsContainer = document.createElement('div');
   buttonsContainer.classList.add('buttons-container');
