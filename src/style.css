@@ -15,6 +15,7 @@
   --color-4-hover: hsl(179, 43%, 50%);
   --color-4-active: hsl(179, 43%, 47%);
   --header-height: 4rem;
+  --sidebar-width: 250px;
 }
 
 *, *::after, *::before {
@@ -57,17 +58,42 @@ svg {
   z-index: 100;
 }
 
+.header * {
+  transition: margin 0.25s;
+}
+
 .header h1{
   position: relative;
   bottom: 0.3rem;
   padding: 0 4.5rem 0 0.25rem;
   font-family: 'Pacifico', cursive;
   font-weight: 200;
+  transition: 
+    width 0.5s ease 0s, 
+    padding 0.5s ease 0s, 
+    opacity 0.5s ease 0s, 
+    visibility 0s ease 0s;
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (max-width: 600px) {
+  .header h1{
+    width: 0;
+    padding: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: 
+      width 0.5s ease 0s, 
+      padding 0.5s ease 0s, 
+      opacity 0.5s ease 0s, 
+      visibility 0s ease 0.5s;
+  }
 }
 
 .search-box {
   position: relative;
-  width: 100%;
+  flex: 1;
   max-width: 500px;
   margin-right: auto;
   display: flex;
@@ -84,6 +110,14 @@ svg {
   border-radius: 0.5rem;
   font-size: 1.15rem;
   font-weight: 400;
+
+  transition: 0.1s;
+}
+
+@media (max-width: 600px) {
+  .search-box input {
+    margin: 0.25rem
+  }
 }
 
 .search-box input::placeholder {
@@ -147,6 +181,20 @@ svg {
   align-items: center;
 }
 
+@media (max-width: 600px) {
+  .header .button,
+  #buttonSidebar,
+  #buttonUser {
+    margin: 0;
+  }
+
+  #buttonNotification.searchBox-focused,
+  #buttonSettings.searchBox-focused,
+  #buttonUser.searchBox-focused {
+    display: none;
+  }
+}
+
 #buttonUser img {
   height: 80%;
   width: 80%;
@@ -160,10 +208,18 @@ svg {
 
 
 .sidebar {
-  height: 100%;
-  width: 250px;
+  position: absolute;
+  left: 0;
+  height: calc(100vh - var(--header-height));
+  width: var(--sidebar-width);
   padding: 0.5rem;
   background-color: var(--color-2);
+  z-index: 10;
+  transition: left 0.5s;
+}
+
+.sidebar.sidebar-hidden {
+  left: calc(-1 * var(--sidebar-width));
 }
 
 .sidebar h4 {
@@ -254,6 +310,7 @@ svg {
 }
 
 .main {
+  margin-left: var(--sidebar-width);
   position: relative;
   padding: 1.25rem 2rem;
   flex: 1;
@@ -261,7 +318,43 @@ svg {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: margin 0.5s;
 }
+.main.sidebar-hidden {
+  margin-left: 0;
+}
+
+#sidebarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;
+  z-index: 9;
+}
+
+@media (max-width: 600px) {
+  .main {
+    margin-left: 0;
+  }
+
+  #sidebarOverlay {
+    visibility: visible;
+    opacity: 0.25;
+    transition: opacity 0.25s ease 0s, visibility 0s ease 0s;
+  }
+
+  #sidebarOverlay.sidebar-hidden {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;
+  }
+}
+
 
 .main h3 {
   color: hsl(0, 0%, 50%);
@@ -269,7 +362,7 @@ svg {
 }
 
 #mainToday .cards {
-  width: 1024px ;
+  max-width: 1024px ;
 }
 
 .cards > .container {

@@ -1,13 +1,28 @@
 import * as todo from './todo.js';
 
+// Header Elements 
+const buttonSidebar = document.querySelector('#buttonSidebar');
+const searchBox = document.querySelector('#searchBox');
+const buttonNotification = document.querySelector('#buttonNotification');
+const buttonSettings = document.querySelector('#buttonSettings');
+const buttonUser = document.querySelector('#buttonUser');
+
+// Card Elements
+const main = document.querySelector('.main');
 const cardsContainer = document.querySelector('.cards > .container');
 const addTaskOverlay = document.querySelector('#addTaskOverlay');
 const addTaskCardWrapper = document.querySelector('#addTaskOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
+
+// Add Task Elements
 const inputTaskTitle = document.querySelector('#inputTaskTitle');
 const inputTaskDescription = document.querySelector('#inputTaskDescription');
 const buttonAddTask = document.querySelector('#buttonAddTask');
 const buttonCancelAddTask = document.querySelector('#buttonCancelAddTask');
+
+// Side Bar Elements
+const sidebar = document.querySelector('.sidebar');
+const sidebarOverlay = document.querySelector('#sidebarOverlay');
 
 const clearCardsContainer = () => {
   while (cardsContainer.firstElementChild) {
@@ -111,12 +126,45 @@ const addTask = () => {
   regenerateCardsContainer();
 }
 
+const toggleSidebarVisibility = () => {
+  if (!sidebar.classList.contains('sidebar-hidden')) {
+    sidebar.classList.add('sidebar-hidden');
+    sidebarOverlay.classList.add('sidebar-hidden');
+    main.classList.add('sidebar-hidden'); 
+  }
+  else {
+    sidebar.classList.remove('sidebar-hidden');
+    sidebarOverlay.classList.remove('sidebar-hidden');
+    main.classList.remove('sidebar-hidden');
+    sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});   
+  }
+}
+
+const expandSearchBoxOnMobile = () => {
+  if (!buttonNotification.classList.contains('searchBox-focused')) {
+    buttonNotification.classList.add('searchBox-focused');
+    buttonSettings.classList.add('searchBox-focused');
+    buttonUser.classList.add('searchBox-focused');
+    searchBox.addEventListener('blur', expandSearchBoxOnMobile, {once: true});
+  }
+  else {
+    buttonNotification.classList.remove('searchBox-focused');
+    buttonSettings.classList.remove('searchBox-focused');
+    buttonUser.classList.remove('searchBox-focused');
+    searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});    
+  }
+}
+
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
 addTaskOverlay.addEventListener('click', clickAddTaskOverlay);
 addTaskCardWrapper.addEventListener('click', clickAddTaskOverlay);
 addTaskCard.addEventListener('click', showAddTaskDialog);
 buttonCancelAddTask.addEventListener('click', hideAddTaskDialog);
 buttonAddTask.addEventListener('click', addTask);
+buttonSidebar.addEventListener('click', toggleSidebarVisibility);
+sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});
+searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
+
 
 // Initial generation of cards container
 regenerateCardsContainer();
