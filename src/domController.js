@@ -1,17 +1,29 @@
 import * as todo from './todo.js';
 
-const cardsContainer = document.querySelector('.cards-container');
+const cardsContainer = document.querySelector('.cards > .container');
+const addTaskOverlay = document.querySelector('#addTaskOverlay');
+const addTaskCardWrapper = document.querySelector('#addTaskOverlay > .wrapper');
+const addTaskCard = document.querySelector('.card.add');
+const inputTaskTitle = document.querySelector('#inputTaskTitle');
+const inputTaskDescription = document.querySelector('#inputTaskDescription');
+const buttonAddTask = document.querySelector('#buttonAddTask');
+const buttonCancelAddTask = document.querySelector('#buttonCancelAddTask');
 
 const clearCardsContainer = () => {
-  while (cardsContainer.firstChild) {
-    cardsContainer.removeChild(cardsContainer.firstChild);
+  while (cardsContainer.firstElementChild) {
+    cardsContainer.removeChild(cardsContainer.firstElementChild);
   }
 }
 
 const fillCardsContainer = () => {
-  for (let task of todo.tasks) {
+  for (let task of todo.getTasks()) {
     generateCard(task);
   }
+}
+
+const regenerateCardsContainer = () => {
+  clearCardsContainer();
+  fillCardsContainer();
 }
 
 const generateCard = (task) => {
@@ -25,7 +37,7 @@ const generateCard = (task) => {
   const dummy = document.createElement('div');
   buttonDone.appendChild(dummy);
   
-  dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check-circle-outline</title><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg>`;
+  dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle-outline</title><path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>`;
 
   const h4 = document.createElement('h4');
   h4.textContent = task.title;
@@ -63,5 +75,48 @@ const generateCard = (task) => {
   cardsContainer.appendChild(card);
 }
 
-clearCardsContainer();
-fillCardsContainer();
+const autoSizeTextArea = (e) => {
+  e.currentTarget.style.height = "75px";
+  e.currentTarget.style.height = (e.currentTarget.scrollHeight) + "px";
+}
+
+const clickAddTaskOverlay = (e) => {
+  if (e.target === e.currentTarget) {
+    hideAddTaskDialog();
+  }
+}
+
+const hideAddTaskDialog = (e) => {
+  addTaskOverlay.classList.add('visibility-hidden');
+  addTaskOverlay.addEventListener('transitionend', () => {
+    resetAddTaskDialog();
+  }, {once: true});
+}
+
+const showAddTaskDialog = (e) => {  
+  addTaskOverlay.classList.remove('visibility-hidden');  
+}
+
+const resetAddTaskDialog = () => {
+  inputTaskTitle.value = '';
+  inputTaskDescription.value = '';
+}
+
+const addTask = () => {
+  const title = inputTaskTitle.value;
+  const description = inputTaskDescription.value;
+
+  todo.addTask(title, description);
+  hideAddTaskDialog();
+  regenerateCardsContainer();
+}
+
+inputTaskDescription.addEventListener('input', autoSizeTextArea);
+addTaskOverlay.addEventListener('click', clickAddTaskOverlay);
+addTaskCardWrapper.addEventListener('click', clickAddTaskOverlay);
+addTaskCard.addEventListener('click', showAddTaskDialog);
+buttonCancelAddTask.addEventListener('click', hideAddTaskDialog);
+buttonAddTask.addEventListener('click', addTask);
+
+// Initial generation of cards container
+regenerateCardsContainer();

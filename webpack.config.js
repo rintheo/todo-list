@@ -8,6 +8,7 @@ module.exports = {
     todo: './src/todo.js',
     domController: './src/domController.js'
   },
+  devtool: 'inline-source-map',
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html'

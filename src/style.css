@@ -254,6 +254,7 @@ svg {
 }
 
 .main {
+  position: relative;
   padding: 1.25rem 2rem;
   flex: 1;
   background-color: var(--color-1);
@@ -267,16 +268,25 @@ svg {
   font-weight: 600;
 }
 
-#mainToday .cards-container {
+#mainToday .cards {
   width: 1024px ;
 }
 
-.cards-container {
+.cards > .container {
   margin-top: 1rem;
   display: grid;
   grid-template-row: repeat(auto-fill, minmax(250px, 1fr));
   grid-auto-rows: auto;
   gap: 1rem;
+}
+
+.card.add {
+  margin-top: 1rem;
+}
+
+.card.add h4 {
+  color: hsl(0, 0%, 50%);
+  font-weight: 500;
 }
 
 .card {
@@ -289,7 +299,12 @@ svg {
   user-select: none;  
 }
 
+.card:hover {
+  box-shadow: 0 0 0 1px var(--color-4), 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
 .card h4 {
+  margin-bottom: 0.4rem;
   font-size: 1.1rem;
 }
 
@@ -298,8 +313,9 @@ svg {
   font-size: 0.9rem;
 }
 
-.buttons-container {
-  justify-self: end;
+.card .buttons-container {
+  margin-top: auto;
+  padding-top: 1rem;
   display: flex;
   justify-content: end;
 }
@@ -308,6 +324,7 @@ svg {
   height: 2rem;
   width: 2rem;
   background-color: transparent;
+  border-radius: 1.35rem;  
   opacity: 0;
   transition: 0.25s;
 }
@@ -315,7 +332,6 @@ svg {
 .card:hover .button {
   opacity: 1;
   width: 2rem;
-  border-radius: 1.35rem;  
   color: hsl(0, 0%, 50%);
   white-space: nowrap;
 }
@@ -370,11 +386,17 @@ svg {
 .card .button.done:hover {
   width: 1.35rem;
   padding: 0;  
+  background: white;
 }
 
 .card .button.done svg {
   position: absolute;
   height: 1.5rem;
+  fill: var(--color-4);
+}
+
+.card:hover .button.done:hover svg {
+  fill: var(--color-4-hover);
 }
 
 .card svg {
@@ -388,4 +410,124 @@ svg {
 
 .card:hover .button.delete:hover svg {
   fill: red;
+}
+
+/* -------------------------------------------------- */
+/* Card Overlay ------------------------------------- */
+/* -------------------------------------------------- */
+
+#addTaskOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0s;
+}
+
+#addTaskOverlay.visibility-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;
+}
+
+#addTaskOverlay .wrapper {
+  width: 100%;
+  max-width: 1280px;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+#addTaskOverlay .card {
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 0 1px var(--color-4), 2px 2px 2px rgb(0, 0, 0, 0.1);
+  user-select: auto;
+}
+
+#addTaskOverlay .card .button {
+  opacity: 1;
+}
+
+#addTaskOverlay .submit-container {
+  align-self: end;
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+#addTaskOverlay .submit-container .button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#buttonCancelAddTask {
+  background-color: var(--color-2);
+  color: dimgrey;
+}
+
+#buttonCancelAddTask:hover {
+  background-color: var(--color-2-hover);
+}
+
+#buttonCancelAddTask:active {
+  background-color: var(--color-2-active);
+}
+
+#buttonAddTask {
+  background-color: var(--color-4);
+  color: white;
+  font-weight: 600;
+}
+
+#buttonAddTask:hover {
+  background-color: var(--color-4-hover);
+}
+
+#buttonAddTask:active {
+  background-color: var(--color-4-active);
+}
+
+#inputTaskTitle,
+#inputTaskDescription {
+  padding: 0.5rem;
+  border: none;
+  outline: none;
+  border-radius: 0.5rem;
+}
+
+#inputTaskTitle:focus,
+#inputTaskDescription:focus {
+  background-color: var(--color-1-hover);
+}
+
+#inputTaskTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+#inputTaskDescription {
+  font-size: 0.9rem;
+  resize: none;  
+  overflow: hidden;
+  height: 75px;
+}
+
+/* -------------------------------------------------- */
+/* Load Overlay ------------------------------------- */
+/* -------------------------------------------------- */
+
+#loadOverlay {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.1s ease 0.25s, visibility 0s ease 0.35s;
 }
