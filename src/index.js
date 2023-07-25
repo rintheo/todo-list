@@ -63,7 +63,6 @@ function getCardIndex(e) {
 const completeCard = (e) => {
   const task = todolist.getTask(getCardIndex(e));
   task.toggleTaskCompletion();
-  console.log(todolist.getTasks()); // temp
   regenerateCardsContainer();
 }
 
@@ -166,8 +165,9 @@ const resetAddTaskDialog = () => {
 const addTask = () => {
   const title = inputTaskTitle.value;
   const description = inputTaskDescription.value;
+  const index = Date.now();
 
-  todolist.addTask(title, description);
+  todolist.addTask(title, description, index);
   hideAddTaskDialog();
   regenerateCardsContainer();
 }
