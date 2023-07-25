@@ -16,6 +16,8 @@
   --color-4-active: hsl(179, 43%, 47%);
   --header-height: 4rem;
   --sidebar-width: 250px;
+  --move-up-distance: 0;
+  --move-down-distance: 0;
 }
 
 *, *::after, *::before {
@@ -299,7 +301,6 @@ svg {
   height: 1.25rem;
 }
 
-
 /* -------------------------------------------------- */
 /* Main --------------------------------------------- */
 /* -------------------------------------------------- */
@@ -365,6 +366,10 @@ svg {
   height: 100%;
   max-width: 1024px ;
 }
+
+/* -------------------------------------------------- */
+/* Card --------------------------------------------- */
+/* -------------------------------------------------- */
 
 .cards > .container {
   /* margin-top: 1rem; */
@@ -508,6 +513,44 @@ svg {
 }
 
 /* -------------------------------------------------- */
+/* Card Animation ----------------------------------- */
+/* -------------------------------------------------- */
+
+.moving-down {
+  animation: 0.25s ease-in-out 0s 1 reverse forwards card-move-down;
+}
+
+.moving-up {
+  animation: 0.25s ease-in-out 0s 1 reverse forwards card-move-up;
+}
+
+@keyframes card-move-down {
+  from {
+    transform: translateX(0);
+    transform: translateY(0);
+    z-index: 1;
+  }
+
+  50% {
+    transform: translateX(0.5rem);
+  }
+
+  to {
+    transform: translateX(0);
+    transform: translateY(calc(var(--move-down-distance)));
+  }
+}
+
+@keyframes card-move-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--move-up-distance)));
+  }
+}
+
+/* -------------------------------------------------- */
 /* Card Overlay ------------------------------------- */
 /* -------------------------------------------------- */
 
@@ -625,4 +668,11 @@ svg {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.1s ease 0.25s, visibility 0s ease 0.35s;
+}
+
+.preload * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
 }

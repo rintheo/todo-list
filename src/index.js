@@ -1,6 +1,8 @@
 import './style.css';
 import * as todolist from './todolist.js';
 
+const root = document.documentElement;
+
 // Header Elements 
 const buttonSidebar = document.querySelector('#buttonSidebar');
 const searchBox = document.querySelector('#searchBox');
@@ -51,19 +53,90 @@ const regenerateCardsContainer = () => {
 function getCardIndex(e) {
   let cardIndex;
   document
-      .querySelectorAll('.card')
-      .forEach(card => {
-          if (card.contains(e.target)) {
-              cardIndex = card.getAttribute('data-index');
-          };
-      });
+    .querySelectorAll('.card')
+    .forEach(card => {
+      if (card.contains(e.target)) {
+        cardIndex = card.getAttribute('data-index');
+      };
+    });
   return cardIndex;
 }
 
 const completeCard = (e) => {
-  const task = todolist.getTask(getCardIndex(e));
+  const index = getCardIndex(e);
+  const task = todolist.getTask(index);
+
+  cardCoordinates.setBefore();
+
   task.toggleTaskCompletion();
   regenerateCardsContainer();
+
+  cardCoordinates.setAfter();
+  animateCompleteCard(index);
+}
+
+const cardCoordinates = (() => {
+  const cards = [];
+
+  const setBefore = () => {
+    const currentCards = [...document.querySelectorAll('.container:not(.add) .card')];
+    cards.push(...currentCards.map(card => ({
+      index: card.getAttribute('data-index'),
+      before: card.getBoundingClientRect(),
+    })));
+  }
+
+  const setAfter = () => {
+    const currentCards = [...document.querySelectorAll('.container:not(.add) .card')];
+    currentCards.forEach(currentCard => {
+      cards.forEach(card => {
+        if (currentCard.getAttribute('data-index') === card.index) {
+          card.after = currentCard.getBoundingClientRect();
+        }
+      })
+    });
+  }
+
+  const getCard = (cardIndex) => {
+    let matchingCard;
+    cards.forEach(card => {
+      if (card.index === cardIndex) {
+        matchingCard = card;
+      }
+    })
+    return matchingCard;
+  }
+
+  return {
+    setBefore,
+    setAfter,
+    getCard,
+  }
+})()
+
+const animateCompleteCard = (cardIndex) => {
+  const movingCard = document.querySelector(`.card[data-index="${cardIndex}"]`); 
+  const downDistance = 
+    cardCoordinates.getCard(cardIndex).before.top - 
+    cardCoordinates.getCard(cardIndex).after.top;
+  root.style.setProperty('--move-down-distance', `${downDistance}px`);  
+  movingCard.classList.add('moving-down');
+  movingCard.addEventListener('animationend', (e) => {
+    e.currentTarget.classList.remove('moving-down')      
+  });
+
+  const otherCards = document.querySelectorAll(`.container:not(.add) .card:not([data-index="${cardIndex}"])`);
+  otherCards.forEach(otherCard => {
+    const upDistance = 
+      cardCoordinates.getCard(otherCard.getAttribute('data-index')).before.top - 
+      cardCoordinates.getCard(otherCard.getAttribute('data-index')).after.top;
+    if (upDistance === 0) return;
+    root.style.setProperty('--move-up-distance', `${upDistance}px`);
+    otherCard.classList.add('moving-up');
+    otherCard.addEventListener('animationend', (e) => {
+      e.currentTarget.classList.remove('moving-up')      
+    });
+  });  
 }
 
 const generateCard = (task) => {
@@ -230,3 +303,4 @@ searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
 
 // Initial generation of cards container
 regenerateCardsContainer();
+setTimeout(() => {document.body.classList.remove('preload')}, 0);
