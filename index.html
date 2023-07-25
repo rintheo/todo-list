@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wasurenai</title>
-<script defer src="index.bundle.js"></script><script defer src="todo.bundle.js"></script><script defer src="domController.bundle.js"></script></head>
+<script defer src="index.bundle.js"></script><script defer src="todolist.bundle.js"></script></head>
 <body>
   <div id="loadOverlay" 
        style="background-color:#fff; 
@@ -91,8 +91,7 @@
         <h3>July 23, 2023</h3>        
         <div class="cards">
 
-          <div class="container">
-
+          <div class="container ongoing">
             <!-- Sample Card -->            
             <div class="card">
               <button class="button done">
@@ -116,14 +115,17 @@
               </div>
             </div>
             <!-- Insert cards with JavaScript -->  
-
           </div>
+
+          <div class="container completed"></div>
           
-          <div class="card add">
-            <button class="button done">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus-circle-outline</title><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" /></svg>
-            </button>
-            <h4>Add task...</h4>
+          <div class="container add">
+            <div class="card add">
+              <button class="button done">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus-circle-outline</title><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" /></svg>
+              </button>
+              <h4>Add task...</h4>
+            </div>
           </div>
 
         </div>
