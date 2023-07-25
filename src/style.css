@@ -435,32 +435,6 @@ svg {
 
 .card:hover .button:hover {
   background-color: var(--color-1-hover);
-  width: auto;
-  padding: 0 0.75rem;  
-}
-
-.card:hover .button:hover:after {
-  margin: 0.2rem
-}
-
-.card:hover .button:hover.duedate:after {
-  content: 'Due Date & Time';
-}
-
-.card:hover .button:hover.list:after {
-  content: 'List';
-}
-
-.card:hover .button:hover.priority:after {
-  content: 'Set Priority';
-}
-
-.card:hover .button:hover.delete {
-  color: red;
-}
-
-.card:hover .button:hover.delete:after {
-  content: 'Delete Task';
 }
 
 .card:hover .button:active {
@@ -492,6 +466,30 @@ svg {
   fill: var(--color-4);
 }
 
+.container.ongoing .card .button.done svg.check {
+  opacity: 0;
+}
+
+.container.ongoing .card .button.done:hover svg.check {
+  opacity: 0.4;
+}
+
+.container.ongoing .card .button.done:active svg.check {
+  opacity: 0.55;
+}
+
+.container.completed .card .button.done svg.check {
+  opacity: 1;
+}
+
+.container.completed .card .button.done:hover svg.check {
+  opacity: 0.4;
+}
+
+.container.completed .card .button.done:active svg.check {
+  opacity: 0.25;
+}
+
 .card:hover .button.done:hover svg {
   fill: var(--color-4-hover);
 }
@@ -506,7 +504,7 @@ svg {
 }
 
 .card:hover .button.delete:hover svg {
-  fill: red;
+  fill: lightcoral;
 }
 
 /* -------------------------------------------------- */
