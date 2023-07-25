@@ -10,7 +10,8 @@ const buttonUser = document.querySelector('#buttonUser');
 
 // Card Elements
 const main = document.querySelector('.main');
-const cardsContainer = document.querySelector('.cards > .container');
+const cardOngoingContainer = document.querySelector('.cards > .container.ongoing');
+const cardCompletedContainer = document.querySelector('.cards > .container.completed');
 const addTaskOverlay = document.querySelector('#addTaskOverlay');
 const addTaskCardWrapper = document.querySelector('#addTaskOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
@@ -25,15 +26,21 @@ const buttonCancelAddTask = document.querySelector('#buttonCancelAddTask');
 const sidebar = document.querySelector('.sidebar');
 const sidebarOverlay = document.querySelector('#sidebarOverlay');
 
-const clearCardsContainer = () => {
-  while (cardsContainer.firstElementChild) {
-    cardsContainer.removeChild(cardsContainer.firstElementChild);
-  }
-}
+// -------------------------------------------------------------------------- //
+// Cards -------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 
 const fillCardsContainer = () => {
-  todolist.getOngoingTasks().forEach(generateCard);
-  todolist.getCompletedTasks().forEach(generateCard);
+  todolist.getTasks().forEach(generateCard);
+}
+
+const clearCardsContainer = () => {
+  while (cardOngoingContainer.firstElementChild) {
+    cardOngoingContainer.removeChild(cardOngoingContainer.firstElementChild);
+  }
+  while (cardCompletedContainer.firstElementChild) {
+    cardCompletedContainer.removeChild(cardCompletedContainer.firstElementChild);
+  }
 }
 
 const regenerateCardsContainer = () => {
@@ -54,27 +61,21 @@ function getCardIndex(e) {
 }
 
 const completeCard = (e) => {
-  const index = getCardIndex(e);
-  todolist.getOngoingTasks()[index].toggleTaskCompletion();
-  todolist.completeTask(index);
+  const task = todolist.getTask(getCardIndex(e));
+  task.toggleTaskCompletion();
+  console.log(todolist.getTasks()); // temp
   regenerateCardsContainer();
 }
 
-const uncompleteCard = (e) => {
-  const index = getCardIndex(e);
-  todolist.getCompletedTasks()[index].toggleTaskCompletion();
-  todolist.uncompleteTask(index);
-  regenerateCardsContainer();
-}
-
-const generateCard = (task, index) => {
+const generateCard = (task) => {
   const card = document.createElement('div');
   card.classList.add('card');
-  card.dataset.index = index;
+  card.dataset.index = task.index;
 
   const buttonDone = document.createElement('button');
   buttonDone.classList.add('button');
   buttonDone.classList.add('done');
+  buttonDone.addEventListener('click', completeCard); 
 
   const dummy = document.createElement('div');
   buttonDone.appendChild(dummy);
@@ -86,15 +87,13 @@ const generateCard = (task, index) => {
   p.textContent = task.description;
 
   if (task.isCompleted) {
-    buttonDone.addEventListener('click', uncompleteCard);    
     h4.classList.add('completed');  
     p.classList.add('completed');    
     dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check-circle-outline</title><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg>`;
   }
-  else {
-    buttonDone.addEventListener('click', completeCard);    
-    h4.classList.add('remove');  
-    p.classList.add('remove');    
+  else {   
+    h4.classList.remove('completed');  
+    p.classList.remove('completed');    
     dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>circle-outline</title><path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>`;
   }
 
@@ -125,8 +124,17 @@ const generateCard = (task, index) => {
   card.appendChild(h4);
   card.appendChild(p);
   card.appendChild(buttonsContainer);
-  cardsContainer.appendChild(card);
+
+  if (task.isCompleted) {
+    cardCompletedContainer.appendChild(card);
+  } else {
+    cardOngoingContainer.appendChild(card);
+  }
 }
+
+// -------------------------------------------------------------------------- //
+// Add Task ----------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 
 const autoSizeTextArea = (e) => {
   e.currentTarget.style.height = "75px";
@@ -164,6 +172,10 @@ const addTask = () => {
   regenerateCardsContainer();
 }
 
+// -------------------------------------------------------------------------- //
+// Sidebar ------------------------------------------------------------------ //
+// -------------------------------------------------------------------------- //
+
 const toggleSidebarVisibility = () => {
   if (!sidebar.classList.contains('sidebar-hidden')) {
     sidebar.classList.add('sidebar-hidden');
@@ -177,6 +189,10 @@ const toggleSidebarVisibility = () => {
     sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});   
   }
 }
+
+// -------------------------------------------------------------------------- //
+// Searchbox ---------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 
 const expandSearchBoxOnMobile = () => {
   if (!buttonNotification.classList.contains('searchBox-focused')) {
@@ -192,6 +208,10 @@ const expandSearchBoxOnMobile = () => {
     searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});    
   }
 }
+
+// -------------------------------------------------------------------------- //
+// Others ------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
 addTaskOverlay.addEventListener('click', clickAddTaskOverlay);
