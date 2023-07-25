@@ -32,8 +32,15 @@ const addTask = (title, description, index) => {
   tasks.push(new Task(title, description, index));
 }
 
+const updateTask = (title, description, index) => {
+  const task = getTask(index);
+  task.title = title;
+  task.description = description;
+}
+
 export {
   getTask,
   getTasks,
   addTask,
+  updateTask,
 }

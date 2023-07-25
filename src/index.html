@@ -130,9 +130,9 @@
 
         <div id="sidebarOverlay"></div>
 
-        <div id="addTaskOverlay" class="visibility-hidden">
+        <div id="focusedCardOverlay" class="visibility-hidden">
           <div class="wrapper">
-            <div class="card">
+            <div id="focusedCard" class="card">
               <input type="text" name="inputTaskTitle" id="inputTaskTitle" placeholder="Task Title" value="">
               <textarea name="inputTaskDescription" id="inputTaskDescription" cols="30" rows="10" placeholder="Add description"></textarea>
               <div class="buttons-container">
@@ -151,8 +151,8 @@
               </div>
             </div>
             <div class="submit-container">
-              <button id="buttonCancelAddTask" class="button">Cancel</button>
-              <button id="buttonAddTask" class="button">Add Task</button>
+              <button id="buttonFocusedCardCancel" class="button">Cancel</button>
+              <button id="buttonFocusedCardSubmit" class="button">Add/Save</button>
             </div>
           </div>
         </div>
