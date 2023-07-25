@@ -95,10 +95,15 @@ const cardCoordinates = (() => {
     return matchingCard;
   }
 
+  const clearCards = () => {
+    cards.length = 0;
+  }
+
   return {
     setBefore,
     setAfter,
     getCard,
+    clearCards,
   }
 })()
 
@@ -114,6 +119,7 @@ const completeCard = (e) => {
 
   cardCoordinates.setAfter();
   animateCompleteCard(index);
+  cardCoordinates.clearCards();
 }
 
 const animateCompleteCard = (cardIndex) => {
@@ -215,9 +221,9 @@ const generateCard = (task) => {
 // Add Task ----------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 
-const autoSizeTextArea = (e) => {
-  e.currentTarget.style.height = "75px";
-  e.currentTarget.style.height = (e.currentTarget.scrollHeight) + "px";
+const autoSizeTextArea = () => {
+  inputTaskDescription.style.height = "75px";
+  inputTaskDescription.style.height = (inputTaskDescription.scrollHeight) + "px";
 }
 
 const clickFocusedCardOverlay = (e) => {
@@ -225,32 +231,68 @@ const clickFocusedCardOverlay = (e) => {
     if (todolist.getTasks().some(task => task.index == focusedCard.dataset.focusedIndex)) {    
       submitFocusedCard();
     }
+    else {
+      hideFocusedCard();
+    }
+  }
+}
+
+const hideFocusedCardOnResize = () => {
+  if ((window.innerWidth <= 600) && 
+      (!sidebar.classList.contains('sidebar-hidden')) &&
+      (focusedCard.classList.contains('focused'))) {
     hideFocusedCard();
   }
 }
 
 const hideFocusedCard = (e) => {
+  const selectedCards = document.querySelectorAll(`.card[data-index="${focusedCard.dataset.focusedIndex}"]`);
+  selectedCards.forEach(selectedCard => {
+    selectedCard.classList.remove('fade-out');
+    selectedCard.classList.add('fade-in');
+  });
   focusedCardOverlay.classList.add('visibility-hidden');
-  focusedCardOverlay.addEventListener('transitionend', () => {
-    resetFocusedCard();
+  focusedCard.classList.add('focus-out');
+  focusedCard.addEventListener('animationend', () => {
+    focusedCard.classList.remove('focus-out');
+    focusedCard.classList.remove('focused');
+    selectedCards.forEach(selectedCard => selectedCard.classList.remove('fade-in'));    
+    addTaskCard.removeAttribute('data-index');
+    resetFocusedCard();    
   }, {once: true});
 }
 
-const showFocusedCard = (e) => {  
-  console.log(e.target);
-  console.log(e.currentTarget);
+const showFocusedCard = (e) => {
+  const selectedCard = e.currentTarget;
+  
   focusedCardOverlay.classList.remove('visibility-hidden');  
-  if (e.currentTarget.hasAttribute('data-index')) {
+  if (selectedCard.hasAttribute('data-index')) {
+    const index = selectedCard.getAttribute('data-index');
+    const task = todolist.getTask(index);
     buttonFocusedCardSubmit.textContent = 'Save';
-    focusedCard.dataset.focusedIndex = e.currentTarget.getAttribute('data-index');
-    const task = todolist.getTask(focusedCard.dataset.focusedIndex);
+    focusedCard.dataset.focusedIndex = index;
     inputTaskTitle.value = task.title;
     inputTaskDescription.value = task.description;
   }
   else {
     buttonFocusedCardSubmit.textContent = 'Add';
     focusedCard.dataset.focusedIndex = Date.now();
+    addTaskCard.dataset.index = focusedCard.dataset.focusedIndex;
   }
+
+  const upDistance = 
+    (selectedCard.getBoundingClientRect().top + selectedCard.getBoundingClientRect().height / 2) - 
+    (focusedCard.getBoundingClientRect().top + focusedCard.getBoundingClientRect().height / 2) ;
+  root.style.setProperty('--move-up-distance', `${upDistance}px`);  
+  
+  selectedCard.classList.add('fade-out');
+  focusedCard.classList.add('focus-in');
+  focusedCard.classList.add('focused');
+  focusedCard.addEventListener('animationend', () => {
+    focusedCard.classList.remove('focus-in');
+  });
+
+  autoSizeTextArea();
 }
 
 const resetFocusedCard = () => {
@@ -270,8 +312,8 @@ const submitFocusedCard = () => {
   else {
     todolist.addTask(title, description, index);
   }
-  hideFocusedCard();
   regenerateCardsContainer();
+  hideFocusedCard();
 }
 
 // -------------------------------------------------------------------------- //
@@ -290,6 +332,10 @@ const toggleSidebarVisibility = () => {
     main.classList.remove('sidebar-hidden');
     sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});   
   }
+  if ((window.innerWidth <= 600) && (focusedCard.classList.contains('focused'))) {
+    hideFocusedCard();
+  }
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -315,6 +361,8 @@ const expandSearchBoxOnMobile = () => {
 // Others ------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 
+window.addEventListener('resize', hideFocusedCardOnResize);
+window.addEventListener('resize', autoSizeTextArea);
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
 focusedCardOverlay.addEventListener('click', clickFocusedCardOverlay);
 focusedCardWrapper.addEventListener('click', clickFocusedCardOverlay);
