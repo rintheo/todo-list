@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wasurenai</title>
 <script defer src="index.bundle.js"></script><script defer src="todolist.bundle.js"></script></head>
-<body>
+<body class="preload">
   <div id="loadOverlay" 
        style="background-color:#fff; 
               position:absolute; 
@@ -91,9 +91,8 @@
         <h3>July 23, 2023</h3>        
         <div class="cards">
 
-          <div class="container ongoing">
-            <!-- Sample Card -->            
-            <div class="card">
+          <div class="container ongoing">                  
+            <div class="card">  <!-- Sample Card -->     
               <button class="button done">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check-circle-outline</title><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg>
               </button>
@@ -113,8 +112,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>delete-outline</title><path d="M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z" /></svg>
                 </button>
               </div>
-            </div>
-            <!-- Insert cards with JavaScript -->  
+            </div>         
           </div>
 
           <div class="container completed"></div>
