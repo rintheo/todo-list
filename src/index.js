@@ -56,13 +56,6 @@ const regenerateCardsContainer = () => {
 }
 
 const toggleCardsContainerOverflowGradient = () => {
-  console.clear();
-  console.log(`clientHeight:${cardsActualContainer.clientHeight}`);
-  console.log(`scrollHeight:${cardsActualContainer.scrollHeight}`);
-  console.log(`scrollTop:${cardsActualContainer.scrollTop}`);
-  console.log(`scrollBottom:${cardsActualContainer.scrollHeight - cardsActualContainer.scrollTop - cardsActualContainer.clientHeight}`);
-  console.log('scrolling')
-
   let scrollTop = cardsActualContainer.scrollTop;
   let scrollBottom = cardsActualContainer.scrollHeight - cardsActualContainer.scrollTop - cardsActualContainer.clientHeight;
 
@@ -229,6 +222,19 @@ const generateCard = (task) => {
     button.classList.add('button');
     button.classList.add(buttonEtc.class);
 
+    if (buttonEtc.class === 'duedate') {
+      // button.addEventListener('click', setDueDate);
+    }
+    else if (buttonEtc.class === 'list') {
+      // button.addEventListener('click', assignList);
+    }
+    else if (buttonEtc.class === 'priority') {
+      // button.addEventListener('click', setPriority);
+    }
+    else if (buttonEtc.class === 'delete') {
+      button.addEventListener('click', deleteCard);
+    }
+
     const dummy = document.createElement('div');
 
     button.appendChild(dummy)
@@ -247,6 +253,44 @@ const generateCard = (task) => {
   } else {
     cardsOngoingContainer.appendChild(card);
   }
+}
+
+const deleteCard = (e) => {
+  e.stopPropagation();
+  const index = getCardIndex(e);
+
+  cardCoordinates.setBefore();
+
+  todolist.deleteTask(index);
+  regenerateCardsContainer();
+
+  cardCoordinates.setAfter();
+  animateDeleteCard(index);
+  cardCoordinates.clearCards();
+}
+
+const animateDeleteCard = (cardIndex) => {
+  cardsActualContainer.classList.add('container-shrinking');
+  cardsActualContainer.addEventListener('animationend', (e) => {
+    cardsActualContainer.classList.remove('container-shrinking')      
+  });
+
+  const otherCards = document.querySelectorAll(`.container:not(.add) .card:not([data-index="${cardIndex}"])`);
+  console.log(otherCards);
+  otherCards.forEach(otherCard => {
+    const upDistance = 
+      cardCoordinates.getCard(otherCard.getAttribute('data-index')).before.top - 
+      cardCoordinates.getCard(otherCard.getAttribute('data-index')).after.top;
+    console.log(upDistance);
+    if (upDistance === 0) return;
+    root.style.setProperty('--move-up-distance', `${upDistance}px`);
+    otherCard.classList.add('moving-up');
+    otherCard.addEventListener('animationend', (e) => {
+      e.currentTarget.classList.remove('moving-up')      
+    });
+  }); 
+  
+
 }
 
 // -------------------------------------------------------------------------- //

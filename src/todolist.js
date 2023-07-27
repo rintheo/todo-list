@@ -43,9 +43,14 @@ const updateTask = (title, description, index) => {
   task.description = description;
 }
 
+const deleteTask = (index) => {
+  tasks.splice(tasks.findIndex(task => task.index == index), 1);
+}
+
 export {
   getTask,
   getTasks,
   addTask,
   updateTask,
+  deleteTask,
 }
