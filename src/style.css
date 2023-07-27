@@ -18,6 +18,7 @@
   --sidebar-width: 250px;
   --move-up-distance: 0;
   --move-down-distance: 0;
+  --card-top-overflow-margin: 0;
 }
 
 *, *::after, *::before {
@@ -373,22 +374,99 @@ svg {
   flex-direction: column;
 }
 
-.cards .actual {
+.container.actual {
+  position: relative;
   max-height: 100%;
   overflow-y: scroll; 
+  margin-top: var(--card-top-overflow-margin);
   padding: 0 1rem;
+  padding-bottom: 5px;
+  border-radius: 1rem;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* Internet Explorer 10+ */  
 }
 
-.cards .actual::-webkit-scrollbar { /* WebKit */
+.container.actual::-webkit-scrollbar { /* WebKit */
   height: 0;
   width: 0;
 }
 
+.container.ongoing .card .button.done svg.check {
+  opacity: 0;
+}
+
+.container.ongoing .card .button.done:hover svg.check {
+  opacity: 0.4;
+}
+
+.container.ongoing .card .button.done:active svg.check {
+  opacity: 0.55;
+}
+
+.container.completed .card .button.done svg.check {
+  opacity: 1;
+}
+
+.container.completed .card .button.done:hover svg.check {
+  opacity: 0.4;
+}
+
+.container.completed .card .button.done:active svg.check {
+  opacity: 0.25;
+}
+
 .container.add {
   max-height: 100%;
+  margin-top: -5px;
   padding: 0 1rem;
+}
+
+.overflow-bottom,
+.overflow-top {
+  position: relative;
+  height: 0;
+  background-color: var(--color-1);
+  background-color: red;
+  z-index: 5;
+}
+
+.overflow-bottom > div,
+.overflow-top > div{
+  position: absolute;
+  height: 1rem;
+  width: 100%;
+}
+
+.overflow-top > div {
+  top: calc(1rem - 1px);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 100%);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;
+}
+
+.overflow-top.overflowing > div {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0s;
+}
+
+.overflow-bottom > div {
+  bottom: 0;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 100%);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;
+}
+
+.overflow-bottom.overflowing > div {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0s;
 }
 
 /* -------------------------------------------------- */
@@ -493,30 +571,6 @@ svg {
   position: absolute;
   height: 1.5rem;
   fill: var(--color-4);
-}
-
-.container.ongoing .card .button.done svg.check {
-  opacity: 0;
-}
-
-.container.ongoing .card .button.done:hover svg.check {
-  opacity: 0.4;
-}
-
-.container.ongoing .card .button.done:active svg.check {
-  opacity: 0.55;
-}
-
-.container.completed .card .button.done svg.check {
-  opacity: 1;
-}
-
-.container.completed .card .button.done:hover svg.check {
-  opacity: 0.4;
-}
-
-.container.completed .card .button.done:active svg.check {
-  opacity: 0.25;
 }
 
 .card:hover .button.done:hover svg {
@@ -636,6 +690,7 @@ svg {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 8;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.25s ease 0s, visibility 0s ease 0s;

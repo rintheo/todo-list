@@ -12,8 +12,11 @@ const buttonUser = document.querySelector('#buttonUser');
 
 // Card Elements
 const main = document.querySelector('.main');
-const cardOngoingContainer = document.querySelector('.cards .container.ongoing');
-const cardCompletedContainer = document.querySelector('.cards .container.completed');
+const cardsActualContainerTopOverflow = document.querySelector('.overflow-top');
+const cardsActualContainerBottomOverflow = document.querySelector('.overflow-bottom');
+const cardsActualContainer = document.querySelector('.cards .container.actual');
+const cardsOngoingContainer = document.querySelector('.cards .container.ongoing');
+const cardsCompletedContainer = document.querySelector('.cards .container.completed');
 const focusedCardOverlay = document.querySelector('#focusedCardOverlay');
 const focusedCardWrapper = document.querySelector('#focusedCardOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
@@ -38,17 +41,46 @@ const fillCardsContainer = () => {
 }
 
 const clearCardsContainer = () => {
-  while (cardOngoingContainer.firstElementChild) {
-    cardOngoingContainer.removeChild(cardOngoingContainer.firstElementChild);
+  while (cardsOngoingContainer.firstElementChild) {
+    cardsOngoingContainer.removeChild(cardsOngoingContainer.firstElementChild);
   }
-  while (cardCompletedContainer.firstElementChild) {
-    cardCompletedContainer.removeChild(cardCompletedContainer.firstElementChild);
+  while (cardsCompletedContainer.firstElementChild) {
+    cardsCompletedContainer.removeChild(cardsCompletedContainer.firstElementChild);
   }
 }
 
 const regenerateCardsContainer = () => {
   clearCardsContainer();
   fillCardsContainer();
+  toggleCardsContainerOverflowGradient();  
+}
+
+const toggleCardsContainerOverflowGradient = () => {
+  console.clear();
+  console.log(`clientHeight:${cardsActualContainer.clientHeight}`);
+  console.log(`scrollHeight:${cardsActualContainer.scrollHeight}`);
+  console.log(`scrollTop:${cardsActualContainer.scrollTop}`);
+  console.log(`scrollBottom:${cardsActualContainer.scrollHeight - cardsActualContainer.scrollTop - cardsActualContainer.clientHeight}`);
+  console.log('scrolling')
+
+  let scrollTop = cardsActualContainer.scrollTop;
+  let scrollBottom = cardsActualContainer.scrollHeight - cardsActualContainer.scrollTop - cardsActualContainer.clientHeight;
+
+  if (scrollTop > 0) {
+    scrollTop =  scrollTop > 16 ? 16 : scrollTop;
+    root.style.setProperty('--card-top-overflow-margin', `${scrollTop}px`);  
+    cardsActualContainerTopOverflow.classList.add('overflowing');
+  }
+  else if (scrollTop === 0) {
+    cardsActualContainerTopOverflow.classList.remove('overflowing');
+  }
+
+  if (scrollBottom > 0) {
+    cardsActualContainerBottomOverflow.classList.add('overflowing');
+  }
+  else if (scrollBottom === 0) {
+    cardsActualContainerBottomOverflow.classList.remove('overflowing');
+  }
 }
 
 function getCardIndex(e) {
@@ -211,9 +243,9 @@ const generateCard = (task) => {
   card.appendChild(buttonsContainer);
 
   if (task.isCompleted) {
-    cardCompletedContainer.appendChild(card);
+    cardsCompletedContainer.appendChild(card);
   } else {
-    cardOngoingContainer.appendChild(card);
+    cardsOngoingContainer.appendChild(card);
   }
 }
 
@@ -364,6 +396,7 @@ const expandSearchBoxOnMobile = () => {
 window.addEventListener('resize', hideFocusedCardOnResize);
 window.addEventListener('resize', autoSizeTextArea);
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
+cardsActualContainer.addEventListener('scroll', toggleCardsContainerOverflowGradient);
 focusedCardOverlay.addEventListener('click', clickFocusedCardOverlay);
 focusedCardWrapper.addEventListener('click', clickFocusedCardOverlay);
 addTaskCard.addEventListener('click', showFocusedCard);
@@ -372,6 +405,7 @@ buttonFocusedCardSubmit.addEventListener('click', submitFocusedCard);
 buttonSidebar.addEventListener('click', toggleSidebarVisibility);
 sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});
 searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
+
 
 
 // Initial generation of cards container
