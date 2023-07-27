@@ -307,14 +307,15 @@ svg {
 
 .main-container {
   height: calc(100vh - var(--header-height));
-  display: flex;  
+  display: flex;
+  overflow: hidden;
 }
 
 .main {
   min-width: 0;
   margin-left: var(--sidebar-width);
   position: relative;
-  padding: 1.25rem 2rem;
+  padding: 1.25rem 1rem;
   flex: 1;
   background-color: var(--color-1);
   display: flex;
@@ -364,9 +365,30 @@ svg {
 }
 
 #mainToday .cards {
-  height: 100%;
+  height: 0;
   width: 100%;
-  max-width: 720px ;  
+  max-width: 720px;  
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cards .actual {
+  max-height: 100%;
+  overflow-y: scroll; 
+  padding: 0 1rem;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */  
+}
+
+.cards .actual::-webkit-scrollbar { /* WebKit */
+  height: 0;
+  width: 0;
+}
+
+.container.add {
+  max-height: 100%;
+  padding: 0 1rem;
 }
 
 /* -------------------------------------------------- */

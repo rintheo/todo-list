@@ -12,8 +12,8 @@ const buttonUser = document.querySelector('#buttonUser');
 
 // Card Elements
 const main = document.querySelector('.main');
-const cardOngoingContainer = document.querySelector('.cards > .container.ongoing');
-const cardCompletedContainer = document.querySelector('.cards > .container.completed');
+const cardOngoingContainer = document.querySelector('.cards .container.ongoing');
+const cardCompletedContainer = document.querySelector('.cards .container.completed');
 const focusedCardOverlay = document.querySelector('#focusedCardOverlay');
 const focusedCardWrapper = document.querySelector('#focusedCardOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
