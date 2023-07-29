@@ -20,6 +20,12 @@ const cardsCompletedContainer = document.querySelector('.cards .container.comple
 const focusedCardOverlay = document.querySelector('#focusedCardOverlay');
 const focusedCardWrapper = document.querySelector('#focusedCardOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
+const dropdownOverlay = document.querySelector('#dropdownOverlay');
+const dropdownPriority = document.querySelector('.dropdown.priority');
+const dropdownPriorityHigh = document.querySelector('#priorityHigh');
+const dropdownPriorityMedium = document.querySelector('#priorityMedium');
+const dropdownPriorityLow = document.querySelector('#priorityLow');
+const dropdownPriorityNone = document.querySelector('#priorityNone');
 
 // Focused Card Elements
 const inputTaskTitle = document.querySelector('#inputTaskTitle');
@@ -61,7 +67,18 @@ const regenerateCardsContainer = () => {
 
 const toggleCardsContainerOverflowGradient = () => {
   let scrollTop = cardsActualContainer.scrollTop;
-  let scrollBottom = cardsActualContainer.scrollHeight - cardsActualContainer.scrollTop - cardsActualContainer.clientHeight;
+  let scrollBottom = cardsActualContainer.scrollHeight - 
+                     cardsActualContainer.scrollTop - 
+                     cardsActualContainer.clientHeight;
+
+  console.clear();
+  console.log(scrollTop)
+  console.log(scrollBottom)
+  console.log(cardsActualContainer.scrollHeight)
+  console.log(cardsActualContainer.scrollTop)
+  console.log(cardsActualContainer.clientHeight)
+
+  // cardsActualContainer.scrollTop = 100;
 
   if (scrollTop > 0) {
     scrollTop =  scrollTop > 16 ? 16 : scrollTop;
@@ -72,10 +89,10 @@ const toggleCardsContainerOverflowGradient = () => {
     cardsActualContainerTopOverflow.classList.remove('overflowing');
   }
 
-  if (scrollBottom > 0) {
+  if (scrollBottom >= 1) {
     cardsActualContainerBottomOverflow.classList.add('overflowing');
   }
-  else if (scrollBottom === 0) {
+  else if (scrollBottom < 1) {
     cardsActualContainerBottomOverflow.classList.remove('overflowing');
   }
 }
@@ -180,7 +197,9 @@ const generateCard = (task) => {
   const card = document.createElement('div');
   card.classList.add('card');
   card.dataset.index = task.index;
+  card.dataset.priority = task.priority;
   card.addEventListener('click', showFocusedCard);
+  card.addEventListener('mouseenter', hoverCard);
 
   const buttonDone = document.createElement('button');
   buttonDone.classList.add('button');
@@ -217,7 +236,7 @@ const generateCard = (task) => {
   const buttonsEtc = [
     {class: 'duedate', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>calendar-clock</title><path d="M15,13H16.5V15.82L18.94,17.23L18.19,18.53L15,16.69V13M19,8H5V19H9.67C9.24,18.09 9,17.07 9,16A7,7 0 0,1 16,9C17.07,9 18.09,9.24 19,9.67V8M5,21C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1H8V3H16V1H18V3H19A2,2 0 0,1 21,5V11.1C22.24,12.36 23,14.09 23,16A7,7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z" /></svg>`},
     {class: 'list', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>folder-outline</title><path d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" /></svg>`},
-    {class: 'priority', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>flag-outline</title><path d="M12.36,6L12.76,8H18V14H14.64L14.24,12H7V6H12.36M14,4H5V21H7V14H12.6L13,16H20V6H14.4" /></svg>`},
+    {class: 'priority', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>flag</title><path d="M14.4,6L14,4H5V21H7V14H12.6L13,16H20V6H14.4Z" /></svg>`},
     {class: 'delete', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>delete-outline</title><path d="M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z" /></svg>`},
   ]
 
@@ -225,6 +244,7 @@ const generateCard = (task) => {
     const button = document.createElement('button');
     button.classList.add('button');
     button.classList.add(buttonEtc.class);
+    button.dataset.index = task.index;
 
     if (buttonEtc.class === 'duedate') {
       // button.addEventListener('click', setDueDate);
@@ -233,7 +253,7 @@ const generateCard = (task) => {
       // button.addEventListener('click', assignList);
     }
     else if (buttonEtc.class === 'priority') {
-      // button.addEventListener('click', setPriority);
+      button.addEventListener('click', clickPriorityDropdown);
     }
     else if (buttonEtc.class === 'delete') {
       button.addEventListener('click', deleteCard);
@@ -259,9 +279,88 @@ const generateCard = (task) => {
   }
 }
 
+const hoverCard = (e) => {
+  e.currentTarget.classList.add('hover');
+  e.currentTarget.addEventListener('mouseleave', (e) => {
+    if (dropdownOverlay.classList.contains('visibility-hidden')) {
+      e.currentTarget.classList.remove('hover');      
+    }
+  }, {once: true});
+}
+
+const clickPriorityDropdown = (e) => {
+  e.stopPropagation();
+
+  const currentCardIndex = getCardIndex(e);
+  const currentTask = todolist.getTask(currentCardIndex);
+  const dropdownTop = `calc(${e.currentTarget.getBoundingClientRect().top}px - 
+                      ${cardsActualContainer.getBoundingClientRect().top}px +
+                      ${window.getComputedStyle(root).getPropertyValue('--button-width')})`;
+  const dropdownLeft = e.currentTarget.getBoundingClientRect().left - 
+                       cardsActualContainer.getBoundingClientRect().left;
+                      
+  root.style.setProperty('--dropdown-top', dropdownTop);
+  root.style.setProperty('--dropdown-left', `${dropdownLeft}px`);
+
+  setDropdownPriorityIndex(currentCardIndex);
+  displayCurrentCardPriority(currentTask);
+  toggleDropdownPriorityVisibility(e);
+}
+
+const toggleDropdownPriorityVisibility = (e) => {
+  const currentCardIndex = e.currentTarget.dataset.index;
+  const currentPriorityButton = document.querySelector(`.button.priority[data-index="${currentCardIndex}"]`)
+
+  if (dropdownPriority.classList.contains('visibility-hidden')) {
+    currentPriorityButton.classList.add('hover');
+    dropdownOverlay.classList.remove('visibility-hidden');
+    dropdownPriority.classList.remove('visibility-hidden');
+  }
+  else {
+    const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
+    selectedCard.classList.remove('hover');
+    currentPriorityButton.classList.remove('hover');
+    dropdownOverlay.classList.add('visibility-hidden');
+    dropdownPriority.classList.add('visibility-hidden');
+  }
+}
+
+const setDropdownPriorityIndex = (index) => {
+  dropdownPriorityHigh.dataset.index = index;
+  dropdownPriorityMedium.dataset.index = index;
+  dropdownPriorityLow.dataset.index = index;
+  dropdownPriorityNone.dataset.index = index;
+  dropdownOverlay.dataset.index = index;
+}
+
+const displayCurrentCardPriority = (task) => {
+  const dropdownPriorityList = [
+    dropdownPriorityHigh,
+    dropdownPriorityMedium,
+    dropdownPriorityLow,
+    dropdownPriorityNone,
+  ]
+
+  dropdownPriorityList.forEach(priority => {
+    if (priority.value === task.priority) {
+      priority.checked = true;
+    }
+  });
+}
+
+const selectPriority = (e) => {
+  const selectedPriority = document.querySelector('.dropdown input[name="priority"]:checked').value;
+  const currentCardIndex = e.currentTarget.dataset.index;
+  const currentTask = todolist.getTask(currentCardIndex);
+  const currentCard = document.querySelector(`.card[data-index="${currentCardIndex}"]`);
+  currentTask.setTaskPriority(selectedPriority);
+  currentCard.dataset.priority = selectedPriority;
+}
+
 const deleteCard = (e) => {
   e.stopPropagation();
   const index = getCardIndex(e);
+  if (!todolist.getTask(index)) return;
 
   cardCoordinates.setBefore();
 
@@ -369,6 +468,7 @@ const showFocusedCard = (e) => {
   selectedCard.classList.add('fade-out');
   focusedCard.classList.add('focus-in');
   focusedCard.classList.add('focused');
+  focusedCard.addEventListener('mouseenter', hoverCard);
   focusedCard.addEventListener('animationend', () => {
     focusedCard.classList.remove('focus-in');
   }, {once: true});
@@ -444,20 +544,32 @@ const expandSearchBoxOnMobile = () => {
 
 window.addEventListener('resize', hideFocusedCardOnResize);
 window.addEventListener('resize', autoSizeTextArea);
-inputTaskDescription.addEventListener('input', autoSizeTextArea);
+
+// Header 
+searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
+
+//Cards
 cardsActualContainer.addEventListener('scroll', toggleCardsContainerOverflowGradient);
+addTaskCard.addEventListener('click', showFocusedCard);
+addTaskCard.addEventListener('mouseenter', hoverCard);
+dropdownOverlay.addEventListener('click', toggleDropdownPriorityVisibility);
+dropdownPriorityHigh.addEventListener('click', selectPriority);
+dropdownPriorityMedium.addEventListener('click', selectPriority);
+dropdownPriorityLow.addEventListener('click', selectPriority);
+dropdownPriorityNone.addEventListener('click', selectPriority);
+
+// Focused Card
+inputTaskDescription.addEventListener('input', autoSizeTextArea);
 focusedCardOverlay.addEventListener('click', clickFocusedCardOverlay);
 focusedCardWrapper.addEventListener('click', clickFocusedCardOverlay);
-addTaskCard.addEventListener('click', showFocusedCard);
 buttonFocusedCardDelete.addEventListener('click', deleteCard);
 buttonFocusedCardDelete.addEventListener('click', hideFocusedCard);
 buttonFocusedCardCancel.addEventListener('click', hideFocusedCard);
 buttonFocusedCardSubmit.addEventListener('click', submitFocusedCard);
+
+// Sidebar
 buttonSidebar.addEventListener('click', toggleSidebarVisibility);
 sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});
-searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
-
-
 
 // Initial generation of cards container
 regenerateCardsContainer();

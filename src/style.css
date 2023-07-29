@@ -20,6 +20,9 @@
   --move-down-distance: 111.78125px;
   --card-gap: 1rem;
   --card-top-overflow-margin: 0;
+  --dropdown-top: 0;
+  --dropdown-left: 0;
+  --button-width: 2rem;
 }
 
 *, *::after, *::before {
@@ -44,6 +47,11 @@ a {
 
 svg {
   vertical-align: top;
+}
+
+.site-container {
+  height: 100%;
+  width: 100%;
 }
 
 /* -------------------------------------------------- */
@@ -367,6 +375,7 @@ svg {
 }
 
 #mainToday .cards {
+  position: relative;
   height: 0;
   width: 100%;
   max-width: 720px;  
@@ -391,6 +400,11 @@ svg {
   height: 0;
   width: 0;
 }
+
+/* .container.ongoing,
+.container.completed {
+  display: grid;
+} */
 
 .container.ongoing .card .button.done svg.check {
   opacity: 0;
@@ -489,9 +503,34 @@ svg {
   display: flex;
   flex-direction: column;
   user-select: none;  
+  transition: box-shadow 0.25s ease 0s;
 }
 
-.card:hover {
+.card[data-priority=high] {
+  box-shadow: 0 0 2px 2px hsl(0, 100%, 75%), 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card[data-priority=high].hover {
+  box-shadow: 0 0 2px 2px red, 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card[data-priority=medium] {
+  box-shadow: 0 0 2px 2px hsl(39, 100%, 75%), 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card[data-priority=medium].hover {
+  box-shadow: 0 0 2px 2px orange, 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card[data-priority=low] {
+  box-shadow: 0 0 2px 2px hsl(120, 50%, 65%), 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card[data-priority=low].hover {
+  box-shadow: 0 0 2px 2px green, 2px 2px 2px rgb(0, 0, 0, 0.1);
+}
+
+.card.hover {
   box-shadow: 0 0 0 1px var(--color-4), 2px 2px 2px rgb(0, 0, 0, 0.1);
 }
 
@@ -526,26 +565,27 @@ svg {
 }
 
 .card .button {
-  height: 2rem;
-  width: 2rem;
+  height: var(--button-width);
+  width: var(--button-width);
   background-color: transparent;
   border-radius: 1.35rem;  
   opacity: 0;
   transition: 0.25s;
 }
 
-.card:hover .button {
+.card.hover .button {
   opacity: 1;
   width: 2rem;
   color: hsl(0, 0%, 50%);
   white-space: nowrap;
 }
 
-.card:hover .button:hover {
+.card.hover .button.hover,
+.card.hover .button:hover {
   background-color: var(--color-1-hover);
 }
 
-.card:hover .button:active {
+.card.hover .button:active {
   background-color: var(--color-1-active);
 }
 
@@ -571,24 +611,42 @@ svg {
 .card .button.done svg {
   position: absolute;
   height: 1.5rem;
+}
+
+.card .button.done svg,
+.card.hover .button.done:hover svg {
   fill: var(--color-4);
 }
 
-.card:hover .button.done:hover svg {
-  fill: var(--color-4-hover);
+.card[data-priority=high] .button.done svg,
+.card.hover[data-priority=high] .button.done svg,
+.card[data-priority=high] .button.priority svg,
+.card[data-priority=high] .button.priority:hover svg {
+  fill: red;
+}
+
+.card[data-priority=medium] .button.done svg,
+.card.hover[data-priority=medium] .button.done svg,
+.card[data-priority=medium] .button.priority svg,
+.card[data-priority=medium] .button.priority:hover svg   {
+  fill: orange;
+}
+
+.card[data-priority=low] .button.done svg,
+.card.hover[data-priority=low] .button.done svg,
+.card[data-priority=low] .button.priority svg,
+.card[data-priority=low] .button.priority:hover svg   {
+  fill: green;
 }
 
 .card svg {
   height: 1.25rem;
   fill: hsl(0, 0%, 75%);
+  transition: 0.25s;
 }
 
-.card:hover .button:hover svg {
+.card.hover .button:hover svg {
   fill: hsl(0, 0%, 50%);
-}
-
-.card:hover .button.delete:hover svg {
-  fill: lightcoral;
 }
 
 /* -------------------------------------------------- */
@@ -689,6 +747,103 @@ svg {
   to {
     padding-bottom: 5px;
   }
+}
+
+/* -------------------------------------------------- */
+/* Card Dropdowns ----------------------------------- */
+/* -------------------------------------------------- */
+
+.dropdown {
+  position: absolute;
+  top: var(--dropdown-top);
+  left: var(--dropdown-left);
+  padding: 0.125rem;
+  background: var(--color-1);
+  box-shadow: 0 0 0 1px lightgrey, 2px 2px 2px rgb(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  z-index: 1001;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0s;  
+}
+
+.dropdown.visibility-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;  
+}
+
+.dropdown ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.dropdown label {
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.dropdown label:hover,
+.dropdown input:checked + label:hover  {
+  background: var(--color-2-hover);
+}
+
+.dropdown label:active,
+.dropdown input:checked + label,
+.dropdown input:checked + label:active  {
+  background: var(--color-2-active);
+}
+
+.dropdown input {
+  display: none;
+}
+
+.dropdown label {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.dropdown label[for=priorityHigh] svg{
+  fill: red;
+}
+
+.dropdown label[for=priorityMedium] svg{
+  fill: orange;
+}
+
+.dropdown label[for=priorityLow] svg{
+  fill: green;
+}
+
+.dropdown label[for=priorityNone] svg{
+  fill: hsl(0, 0%, 75%);
+}
+
+.dropdown svg {
+  height: 1rem;
+}
+
+.dropdown p {
+  color: hsl(0, 0%, 50%);
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+#dropdownOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  visibility: visible;
+  transition: visibility 0s ease 0s;
+  z-index: 1000;
+}
+
+#dropdownOverlay.visibility-hidden {
+  visibility: hidden;
+  transition: visibility 0s ease 0s;
 }
 
 /* -------------------------------------------------- */
