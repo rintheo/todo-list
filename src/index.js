@@ -283,29 +283,34 @@ const hoverCard = (e) => {
   }, {once: true});
 }
 
-const positionDropdown = (e) => {
-  const dropdownTop = `calc(${e.currentTarget.getBoundingClientRect().top}px - 
+// -------------------------------------------------------------------------- //
+// Card Dropdowns ----------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+
+const positionDropdown = (currentButton) => {
+  const dropdownTop = `calc(${currentButton.getBoundingClientRect().top}px - 
                       ${cardsActualContainer.getBoundingClientRect().top}px +
                       ${window.getComputedStyle(root).getPropertyValue('--button-width')})`;
-  const dropdownLeft = e.currentTarget.getBoundingClientRect().left - 
+  const dropdownLeft = currentButton.getBoundingClientRect().left - 
                        cardsActualContainer.getBoundingClientRect().left;
   root.style.setProperty('--dropdown-top', dropdownTop);
   root.style.setProperty('--dropdown-left', `${dropdownLeft}px`);
 }
 
+// List --------------------------------------------------------------------- //
+
 const clickListDropdown = (e) => {
   e.stopPropagation();
-  const currentListButton = e.currentTarget;
+  const currentButton = e.currentTarget;
   const currentCardIndex = getCardIndex(e);
   const currentTask = todolist.getTask(currentCardIndex);      
-  positionDropdown(e);
+  positionDropdown(currentButton);
   clearDropdownList();
   generateDropdownList(currentCardIndex);
-  showDropdownList(currentListButton);
+  showDropdownList(currentButton);
   if (todolist.doesTaskExist(currentCardIndex)) {
     displayCurrentCardList(currentTask);
   }
-
 }
 
 const clearDropdownList = () => {
@@ -356,7 +361,7 @@ const showDropdownList = (currentListButton) => {
 
 const hideDropdownList = (e) => {
   const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
-  const currentButton = document.querySelector(`.button.clicked[data-index="${e.currentTarget.dataset.index}"]`);
+  const currentButton = document.querySelector(`.button.clicked`);
   selectedCard.classList.remove('hover');
   currentButton.classList.remove('hover');
   currentButton.classList.remove('clicked');
@@ -394,23 +399,24 @@ const selectList = (e) => {
   hideDropdownList(e);
 }
 
+// Priority ----------------------------------------------------------------- //
+
 const clickPriorityDropdown = (e) => {
   e.stopPropagation();
-  const currentPriorityButton = e.currentTarget;
+  const currentButton = e.currentTarget;
   const currentCardIndex = getCardIndex(e);
   const currentTask = todolist.getTask(currentCardIndex);      
-  positionDropdown(e);
-  showDropdownPriority(currentPriorityButton);
+  positionDropdown(currentButton);
+  showDropdownPriority(currentButton);
   setDropdownPriorityIndex(currentCardIndex);
   if (todolist.doesTaskExist(currentCardIndex)) {
     displayCurrentCardPriority(currentTask);
   }
-
 }
 
-const showDropdownPriority = (currentPriorityButton) => {
-  currentPriorityButton.classList.add('hover');
-  currentPriorityButton.classList.add('clicked');
+const showDropdownPriority = (currentButton) => {
+  currentButton.classList.add('hover');
+  currentButton.classList.add('clicked');
   dropdownOverlay.addEventListener('click', hideDropdownPriority);
   dropdownOverlay.classList.remove('visibility-hidden');
   dropdownPriority.classList.remove('visibility-hidden');
@@ -418,10 +424,10 @@ const showDropdownPriority = (currentPriorityButton) => {
 
 const hideDropdownPriority = (e) => {
   const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
-  const currentPriorityButton = document.querySelector(`.button.priority.clicked[data-index="${e.currentTarget.dataset.index}"]`);
+  const currentButton = document.querySelector(`.button.clicked`);
   selectedCard.classList.remove('hover');
-  currentPriorityButton.classList.remove('hover');
-  currentPriorityButton.classList.remove('clicked');
+  currentButton.classList.remove('hover');
+  currentButton.classList.remove('clicked');
   dropdownOverlay.removeEventListener('click', hideDropdownPriority);
   dropdownOverlay.removeAttribute('data-index');
   dropdownOverlay.classList.add('visibility-hidden');
@@ -467,6 +473,8 @@ const selectPriority = (e) => {
   }
   hideDropdownPriority(e);
 }
+
+// Delete ------------------------------------------------------------------- //
 
 const deleteCard = (e) => {
   e.stopPropagation();
