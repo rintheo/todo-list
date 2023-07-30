@@ -190,6 +190,7 @@ const generateCard = (task) => {
   card.classList.add('card');
   card.dataset.index = task.index;
   card.dataset.priority = task.priority;
+  card.dataset.list = task.list;
   card.addEventListener('click', showFocusedCard);
   card.addEventListener('mouseenter', hoverCard);
 
@@ -331,6 +332,7 @@ const generateDropdownList = (currentCardIndex) => {
     input.value = list;
     input.dataset.index = currentCardIndex;
     input.addEventListener('click', selectList);
+    if (index === 0) {input.checked = true}
 
     const label = document.createElement('label');
     label.setAttribute('for', input.id);
@@ -389,13 +391,14 @@ const selectList = (e) => {
   if (todolist.doesTaskExist(currentCardIndex)) {
     const currentTask = todolist.getTask(currentCardIndex);
     currentTask.setTaskList(selectedList);
-    document.querySelector('.button.list.clicked > p').textContent = selectedList;
   }
 
   currentCard.dataset.list = selectedList;
   if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
     focusedCard.dataset.list = selectedList;
   }
+
+  document.querySelector('.button.list.clicked > p').textContent = selectedList;
   hideDropdownList(e);
 }
 
@@ -562,6 +565,7 @@ const hideFocusedCard = (e) => {
 
   addTaskCard.removeAttribute('data-index');
   addTaskCard.removeAttribute('data-priority');
+  addTaskCard.removeAttribute('data-list');
   focusedCard.classList.add('focus-out');
   focusedCard.addEventListener('animationend', () => {
     focusedCard.classList.remove('focused');
@@ -597,6 +601,7 @@ const resetFocusedCardData = () => {
   buttonFocusedCardDelete.removeAttribute('data-index');
   focusedCard.removeAttribute('data-index');
   focusedCard.removeAttribute('data-priority');
+  focusedCard.removeAttribute('data-list');
   inputTaskTitle.value = '';
   inputTaskDescription.value = '';
 }
@@ -612,6 +617,7 @@ const initializeFocusedCardData = (selectedCard) => {
     buttonFocusedCardDelete.dataset.index = task.index;
     focusedCard.dataset.index = task.index;
     focusedCard.dataset.priority = task.priority;
+    focusedCard.dataset.list = task.list;
     inputTaskTitle.value = task.title;
     inputTaskDescription.value = task.description;
     autoSizeTextArea();
@@ -623,8 +629,10 @@ const initializeFocusedCardData = (selectedCard) => {
     buttonFocusedCardList.dataset.index = index;
     buttonFocusedCardPriority.dataset.index = index;
     buttonFocusedCardDelete.dataset.index = index;
+    document.querySelector('#buttonFocusedCardList > p').textContent = todolist.getLists()[0];
     focusedCard.dataset.index = index;
     focusedCard.dataset.priority = 'none';
+    focusedCard.dataset.list = todolist.getLists()[0];
     addTaskCard.dataset.index = index;
   }
 }
@@ -634,6 +642,7 @@ const submitFocusedCard = () => {
   const description = inputTaskDescription.value;
   const index = focusedCard.dataset.index;
   const priority = focusedCard.dataset.priority;
+  const list = focusedCard.dataset.list;
 
   console.log(priority)
 
@@ -644,6 +653,7 @@ const submitFocusedCard = () => {
     todolist.addTask(title, description, index);
   }
   todolist.getTask(index).setTaskPriority(priority);
+  todolist.getTask(index).setTaskList(list);
 
   regenerateCardsContainer();
   hideFocusedCard();
