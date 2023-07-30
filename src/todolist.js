@@ -59,10 +59,15 @@ const deleteTask = (index) => {
   tasks.splice(tasks.findIndex(task => task.index == index), 1);
 }
 
+const doesTaskExist = (index) => {
+  return tasks.some(task => task.index == index);
+}
+
 export {
   getTask,
   getTasks,
   addTask,
   updateTask,
   deleteTask,
+  doesTaskExist,
 }

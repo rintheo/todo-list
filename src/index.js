@@ -71,15 +71,6 @@ const toggleCardsContainerOverflowGradient = () => {
                      cardsActualContainer.scrollTop - 
                      cardsActualContainer.clientHeight;
 
-  console.clear();
-  console.log(scrollTop)
-  console.log(scrollBottom)
-  console.log(cardsActualContainer.scrollHeight)
-  console.log(cardsActualContainer.scrollTop)
-  console.log(cardsActualContainer.clientHeight)
-
-  // cardsActualContainer.scrollTop = 100;
-
   if (scrollTop > 0) {
     scrollTop =  scrollTop > 16 ? 16 : scrollTop;
     root.style.setProperty('--card-top-overflow-margin', `${scrollTop}px`);  
@@ -290,7 +281,8 @@ const hoverCard = (e) => {
 
 const clickPriorityDropdown = (e) => {
   e.stopPropagation();
-
+  
+  const currentPriorityButton = e.currentTarget;
   const currentCardIndex = getCardIndex(e);
   const currentTask = todolist.getTask(currentCardIndex);
   const dropdownTop = `calc(${e.currentTarget.getBoundingClientRect().top}px - 
@@ -302,27 +294,30 @@ const clickPriorityDropdown = (e) => {
   root.style.setProperty('--dropdown-top', dropdownTop);
   root.style.setProperty('--dropdown-left', `${dropdownLeft}px`);
 
+  showDropdownPriority(currentPriorityButton);
   setDropdownPriorityIndex(currentCardIndex);
-  displayCurrentCardPriority(currentTask);
-  toggleDropdownPriorityVisibility(e);
+  if (todolist.doesTaskExist(currentCardIndex)) {
+    displayCurrentCardPriority(currentTask);
+  }
+
 }
 
-const toggleDropdownPriorityVisibility = (e) => {
-  const currentCardIndex = e.currentTarget.dataset.index;
-  const currentPriorityButton = document.querySelector(`.button.priority[data-index="${currentCardIndex}"]`)
+const showDropdownPriority = (currentPriorityButton) => {
+  currentPriorityButton.classList.add('hover');
+  currentPriorityButton.classList.add('clicked');
+  dropdownOverlay.classList.remove('visibility-hidden');
+  dropdownPriority.classList.remove('visibility-hidden');
+}
 
-  if (dropdownPriority.classList.contains('visibility-hidden')) {
-    currentPriorityButton.classList.add('hover');
-    dropdownOverlay.classList.remove('visibility-hidden');
-    dropdownPriority.classList.remove('visibility-hidden');
-  }
-  else {
-    const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
-    selectedCard.classList.remove('hover');
-    currentPriorityButton.classList.remove('hover');
-    dropdownOverlay.classList.add('visibility-hidden');
-    dropdownPriority.classList.add('visibility-hidden');
-  }
+const hideDropdownPriority = (e) => {
+  const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
+  const currentPriorityButton = document.querySelector(`.button.priority.clicked[data-index="${e.currentTarget.dataset.index}"]`);
+  selectedCard.classList.remove('hover');
+  currentPriorityButton.classList.remove('hover');
+  currentPriorityButton.classList.remove('clicked');
+  dropdownOverlay.removeAttribute('data-index');
+  dropdownOverlay.classList.add('visibility-hidden');
+  dropdownPriority.classList.add('visibility-hidden');
 }
 
 const setDropdownPriorityIndex = (index) => {
@@ -351,10 +346,19 @@ const displayCurrentCardPriority = (task) => {
 const selectPriority = (e) => {
   const selectedPriority = document.querySelector('.dropdown input[name="priority"]:checked').value;
   const currentCardIndex = e.currentTarget.dataset.index;
-  const currentTask = todolist.getTask(currentCardIndex);
   const currentCard = document.querySelector(`.card[data-index="${currentCardIndex}"]`);
-  currentTask.setTaskPriority(selectedPriority);
+
+  if (todolist.doesTaskExist(currentCardIndex)) {
+    const currentTask = todolist.getTask(currentCardIndex);
+    currentTask.setTaskPriority(selectedPriority);
+  }
+
   currentCard.dataset.priority = selectedPriority;
+  if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
+    focusedCard.dataset.priority = selectedPriority;
+  }
+  hideDropdownPriority(e);
+
 }
 
 const deleteCard = (e) => {
@@ -426,39 +430,35 @@ const hideFocusedCardOnResize = () => {
 }
 
 const hideFocusedCard = (e) => {
+  // Select card(s) that were selected
+  // For existing card, expected node in nodelist is 1
+  // For adding a new card, expected nodes in nodelist is 2
+  // For deleting a card, expected node in nodelist is 0, thus null
   const selectedCards = document.querySelectorAll(`.card:not(.focused)[data-index="${focusedCard.dataset.index}"]`);
   selectedCards.forEach(selectedCard => {
-    selectedCard.classList.remove('fade-out');
-    selectedCard.classList.add('fade-in');
+    if (selectedCard !== null) {
+      selectedCard.classList.remove('fade-out');
+      selectedCard.classList.add('fade-in');
+      selectedCard.addEventListener('animationend', () => {
+        selectedCard.classList.remove('fade-in');
+      });
+    }
   });
-  focusedCardOverlay.classList.add('visibility-hidden');
+
+  addTaskCard.removeAttribute('data-index');
+  addTaskCard.removeAttribute('data-priority');
   focusedCard.classList.add('focus-out');
   focusedCard.addEventListener('animationend', () => {
-    focusedCard.classList.remove('focus-out');
     focusedCard.classList.remove('focused');
-    selectedCards.forEach(selectedCard => selectedCard.classList.remove('fade-in'));    
-    addTaskCard.removeAttribute('data-index');
-    resetFocusedCard();    
+    focusedCard.classList.remove('focus-out');
+    resetFocusedCardData();    
   }, {once: true});
+  focusedCardOverlay.classList.add('visibility-hidden');
 }
 
 const showFocusedCard = (e) => {
-  const selectedCard = e.currentTarget;
-  
-  focusedCardOverlay.classList.remove('visibility-hidden');  
-  if (selectedCard.hasAttribute('data-index')) {
-    const index = selectedCard.getAttribute('data-index');
-    const task = todolist.getTask(index);
-    buttonFocusedCardSubmit.textContent = 'Save';
-    focusedCard.dataset.index = index;
-    inputTaskTitle.value = task.title;
-    inputTaskDescription.value = task.description;
-  }
-  else {
-    buttonFocusedCardSubmit.textContent = 'Add';
-    focusedCard.dataset.index = Date.now();
-    addTaskCard.dataset.index = focusedCard.dataset.index;
-  }
+  const selectedCard = e.currentTarget;  
+  initializeFocusedCardData(selectedCard);
 
   const upDistance = 
     (selectedCard.getBoundingClientRect().top + selectedCard.getBoundingClientRect().height / 2) - 
@@ -472,20 +472,54 @@ const showFocusedCard = (e) => {
   focusedCard.addEventListener('animationend', () => {
     focusedCard.classList.remove('focus-in');
   }, {once: true});
-
-  autoSizeTextArea();
+  focusedCardOverlay.classList.remove('visibility-hidden');  
 }
 
-const resetFocusedCard = () => {
+const resetFocusedCardData = () => {
+  buttonFocusedCardDueDate.removeAttribute('data-index');
+  buttonFocusedCardList.removeAttribute('data-index');
+  buttonFocusedCardPriority.removeAttribute('data-index');
+  buttonFocusedCardDelete.removeAttribute('data-index');
+  focusedCard.removeAttribute('data-index');
+  focusedCard.removeAttribute('data-priority');
   inputTaskTitle.value = '';
   inputTaskDescription.value = '';
-  focusedCard.dataset.index = '';
+}
+
+const initializeFocusedCardData = (selectedCard) => {
+  if (selectedCard.hasAttribute('data-index')) {
+    const task = todolist.getTask(selectedCard.dataset.index);
+    buttonFocusedCardSubmit.textContent = 'Save';
+    buttonFocusedCardDueDate.dataset.index = task.index;
+    buttonFocusedCardList.dataset.index = task.index;
+    buttonFocusedCardPriority.dataset.index = task.index;
+    buttonFocusedCardDelete.dataset.index = task.index;
+    focusedCard.dataset.index = task.index;
+    focusedCard.dataset.priority = task.priority;
+    inputTaskTitle.value = task.title;
+    inputTaskDescription.value = task.description;
+    autoSizeTextArea();
+  }
+  else {
+    const index = Date.now();
+    buttonFocusedCardSubmit.textContent = 'Add';
+    buttonFocusedCardDueDate.dataset.index = index;
+    buttonFocusedCardList.dataset.index = index;
+    buttonFocusedCardPriority.dataset.index = index;
+    buttonFocusedCardDelete.dataset.index = index;
+    focusedCard.dataset.index = index;
+    focusedCard.dataset.priority = 'none';
+    addTaskCard.dataset.index = index;
+  }
 }
 
 const submitFocusedCard = () => {
   const title = inputTaskTitle.value;
   const description = inputTaskDescription.value;
   const index = focusedCard.dataset.index;
+  const priority = focusedCard.dataset.priority;
+
+  console.log(priority)
 
   if (todolist.getTasks().some(task => task.index == index)) {    
     todolist.updateTask(title, description, index);
@@ -493,6 +527,8 @@ const submitFocusedCard = () => {
   else {
     todolist.addTask(title, description, index);
   }
+  todolist.getTask(index).setTaskPriority(priority);
+
   regenerateCardsContainer();
   hideFocusedCard();
 }
@@ -552,7 +588,7 @@ searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
 cardsActualContainer.addEventListener('scroll', toggleCardsContainerOverflowGradient);
 addTaskCard.addEventListener('click', showFocusedCard);
 addTaskCard.addEventListener('mouseenter', hoverCard);
-dropdownOverlay.addEventListener('click', toggleDropdownPriorityVisibility);
+dropdownOverlay.addEventListener('click', hideDropdownPriority);
 dropdownPriorityHigh.addEventListener('click', selectPriority);
 dropdownPriorityMedium.addEventListener('click', selectPriority);
 dropdownPriorityLow.addEventListener('click', selectPriority);
@@ -562,6 +598,7 @@ dropdownPriorityNone.addEventListener('click', selectPriority);
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
 focusedCardOverlay.addEventListener('click', clickFocusedCardOverlay);
 focusedCardWrapper.addEventListener('click', clickFocusedCardOverlay);
+buttonFocusedCardPriority.addEventListener('click', clickPriorityDropdown);
 buttonFocusedCardDelete.addEventListener('click', deleteCard);
 buttonFocusedCardDelete.addEventListener('click', hideFocusedCard);
 buttonFocusedCardCancel.addEventListener('click', hideFocusedCard);
