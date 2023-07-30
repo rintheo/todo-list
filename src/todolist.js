@@ -5,6 +5,7 @@ class Task {
     this.isCompleted = false;
     this.index = index;
     this.priority = 'none';
+    this.list = 'Home';
   }
 
   toggleTaskCompletion() {
@@ -13,6 +14,10 @@ class Task {
 
   setTaskPriority(priority) {
     this.priority = priority;
+  }
+
+  setTaskList(list) {
+    this.list = list;
   }
 }
 
@@ -63,6 +68,13 @@ const doesTaskExist = (index) => {
   return tasks.some(task => task.index == index);
 }
 
+const lists = [
+  'Home',
+  'Work',
+];
+
+const getLists = () => lists;
+
 export {
   getTask,
   getTasks,
@@ -70,4 +82,5 @@ export {
   updateTask,
   deleteTask,
   doesTaskExist,
+  getLists,
 }

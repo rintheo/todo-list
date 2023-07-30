@@ -578,7 +578,6 @@ svg {
 
 .card.hover .button {
   opacity: 1;
-  width: 2rem;
   color: hsl(0, 0%, 50%);
   white-space: nowrap;
 }
@@ -590,6 +589,21 @@ svg {
 
 .card.hover .button:active {
   background-color: var(--color-1-active);
+}
+
+.card .button.list {
+  width: auto;
+  min-width: var(--button-width);
+  padding: 0.25rem;
+  padding-right: 0.5rem;
+  border: 1px solid lightgrey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .button.list p {
+  margin-left: 0.1rem;
 }
 
 .card .button.done {
@@ -819,7 +833,7 @@ svg {
   fill: green;
 }
 
-.dropdown label[for=priorityNone] svg{
+.dropdown svg{
   fill: hsl(0, 0%, 75%);
 }
 
