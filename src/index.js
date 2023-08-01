@@ -1,5 +1,7 @@
 import './style.css';
 import * as todolist from './todolist.js';
+import format from 'date-fns/format';
+import parseISO from 'date-fns/parseISO'
 
 const root = document.documentElement;
 
@@ -21,6 +23,8 @@ const focusedCardOverlay = document.querySelector('#focusedCardOverlay');
 const focusedCardWrapper = document.querySelector('#focusedCardOverlay > .wrapper');
 const addTaskCard = document.querySelector('.card.add');
 const dropdownOverlay = document.querySelector('#dropdownOverlay');
+const dropdownDueDate = document.querySelector('.dropdown.duedate');
+const dropdownDueDateInput = document.querySelector('#dueDateInput');
 const dropdownList = document.querySelector('.dropdown.list');
 const dropdownPriority = document.querySelector('.dropdown.priority');
 const dropdownPriorityHigh = document.querySelector('#priorityHigh');
@@ -191,6 +195,7 @@ const generateCard = (task) => {
   card.dataset.index = task.index;
   card.dataset.priority = task.priority;
   card.dataset.list = task.list;
+  card.dataset.dueDate = task.dueDate;
   card.addEventListener('click', showFocusedCard);
   card.addEventListener('mouseenter', hoverCard);
 
@@ -247,7 +252,10 @@ const generateCard = (task) => {
     dummy.outerHTML = buttonEtc.svg;
 
     if (buttonEtc.class === 'duedate') {
-      // button.addEventListener('click', setDueDate);
+      button.addEventListener('click', clickDueDateDropdown);
+      const p = document.createElement('p');
+      p.textContent = format(task.dueDate, 'd LLL');
+      button.appendChild(p);
     }
     else if (buttonEtc.class === 'list') {
       button.addEventListener('click', clickListDropdown);
@@ -296,6 +304,75 @@ const positionDropdown = (currentButton) => {
                        cardsActualContainer.getBoundingClientRect().left;
   root.style.setProperty('--dropdown-top', dropdownTop);
   root.style.setProperty('--dropdown-left', `${dropdownLeft}px`);
+}
+
+// Due Date ----------------------------------------------------------------- //
+
+const clickDueDateDropdown = (e) => {
+  e.stopPropagation();
+  const currentButton = e.currentTarget;
+  const currentCardIndex = getCardIndex(e);
+  const currentTask = todolist.getTask(currentCardIndex);    
+  positionDropdown(currentButton);
+  setDropdownDueDateIndex(currentCardIndex);
+  showDropdownDueDate(currentButton);
+
+  displayCurrentCardDate(currentTask);
+
+}
+
+const showDropdownDueDate = (currentButton) => {
+  currentButton.classList.add('hover');
+  currentButton.classList.add('clicked');
+  dropdownOverlay.addEventListener('click', hideDropdownDueDate);
+  dropdownOverlay.classList.remove('visibility-hidden');
+  dropdownDueDate.classList.remove('visibility-hidden');
+}
+
+const hideDropdownDueDate = (e) => {
+  const selectedCard = document.querySelector(`.card[data-index="${e.currentTarget.dataset.index}"`);
+  const currentButton = document.querySelector(`.button.clicked`);
+  selectedCard.classList.remove('hover');
+  currentButton.classList.remove('hover');
+  currentButton.classList.remove('clicked');
+  dropdownOverlay.removeEventListener('click', hideDropdownDueDate);
+  dropdownOverlay.removeAttribute('data-index');
+  dropdownOverlay.classList.add('visibility-hidden');
+  dropdownDueDate.classList.add('visibility-hidden');
+}
+
+const setDropdownDueDateIndex = (index) => {
+  dropdownDueDateInput.dataset.index = index;
+  dropdownOverlay.dataset.index = index;
+}
+
+const setDueDate = (e) => {
+  const currentCardIndex = e.currentTarget.dataset.index;
+  const currentCard = document.querySelector(`.card[data-index="${currentCardIndex}"]`);
+  const dueDate = new Date(Date.parse(dropdownDueDateInput.value));
+
+  if (todolist.doesTaskExist(currentCardIndex)) {
+    const currentTask = todolist.getTask(currentCardIndex);
+    currentTask.setTaskDueDate(dueDate);
+  }
+
+  currentCard.dataset.dueDate = dueDate;
+  if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
+    focusedCard.dataset.dueDate = dueDate;
+  }
+
+  document.querySelector('.button.duedate.clicked > p').textContent = format(dueDate, 'd LLL');
+  hideDropdownDueDate(e);
+  
+}
+
+const displayCurrentCardDate = (task) => {
+  if (task) {
+    dropdownDueDateInput.value = format(task.dueDate, 'yyyy-MM-dd');
+  }
+  else {
+    dropdownDueDateInput.value = format(Date.now(), 'yyyy-MM-dd');
+  }
 }
 
 // List --------------------------------------------------------------------- //
@@ -602,6 +679,7 @@ const resetFocusedCardData = () => {
   focusedCard.removeAttribute('data-index');
   focusedCard.removeAttribute('data-priority');
   focusedCard.removeAttribute('data-list');
+  focusedCard.removeAttribute('data-due-date');
   inputTaskTitle.value = '';
   inputTaskDescription.value = '';
 }
@@ -612,12 +690,14 @@ const initializeFocusedCardData = (selectedCard) => {
     buttonFocusedCardSubmit.textContent = 'Save';
     buttonFocusedCardDueDate.dataset.index = task.index;
     buttonFocusedCardList.dataset.index = task.index;
-    document.querySelector('#buttonFocusedCardList > p').textContent = task.list;
     buttonFocusedCardPriority.dataset.index = task.index;
     buttonFocusedCardDelete.dataset.index = task.index;
+    document.querySelector('#buttonFocusedCardDueDate > p').textContent = format(task.dueDate, 'd LLL');
+    document.querySelector('#buttonFocusedCardList > p').textContent = task.list;
     focusedCard.dataset.index = task.index;
     focusedCard.dataset.priority = task.priority;
     focusedCard.dataset.list = task.list;
+    focusedCard.dataset.dueDate = task.dueDate;
     inputTaskTitle.value = task.title;
     inputTaskDescription.value = task.description;
     autoSizeTextArea();
@@ -629,10 +709,12 @@ const initializeFocusedCardData = (selectedCard) => {
     buttonFocusedCardList.dataset.index = index;
     buttonFocusedCardPriority.dataset.index = index;
     buttonFocusedCardDelete.dataset.index = index;
+    document.querySelector('#buttonFocusedCardDueDate > p').textContent = format(Date.now(), 'd LLL');
     document.querySelector('#buttonFocusedCardList > p').textContent = todolist.getLists()[0];
     focusedCard.dataset.index = index;
     focusedCard.dataset.priority = 'none';
     focusedCard.dataset.list = todolist.getLists()[0];
+    focusedCard.dataset.dueDate = new Date(Date.now());
     addTaskCard.dataset.index = index;
   }
 }
@@ -643,8 +725,8 @@ const submitFocusedCard = () => {
   const index = focusedCard.dataset.index;
   const priority = focusedCard.dataset.priority;
   const list = focusedCard.dataset.list;
-
-  console.log(priority)
+  const dueDate = new Date(focusedCard.dataset.dueDate);
+  console.log(dueDate)
 
   if (todolist.getTasks().some(task => task.index == index)) {    
     todolist.updateTask(title, description, index);
@@ -654,6 +736,7 @@ const submitFocusedCard = () => {
   }
   todolist.getTask(index).setTaskPriority(priority);
   todolist.getTask(index).setTaskList(list);
+  todolist.getTask(index).setTaskDueDate(dueDate);
 
   regenerateCardsContainer();
   hideFocusedCard();
@@ -714,6 +797,7 @@ searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
 cardsActualContainer.addEventListener('scroll', toggleCardsContainerOverflowGradient);
 addTaskCard.addEventListener('click', showFocusedCard);
 addTaskCard.addEventListener('mouseenter', hoverCard);
+dropdownDueDateInput.addEventListener('change', setDueDate);
 dropdownPriorityHigh.addEventListener('click', selectPriority);
 dropdownPriorityMedium.addEventListener('click', selectPriority);
 dropdownPriorityLow.addEventListener('click', selectPriority);
@@ -723,6 +807,7 @@ dropdownPriorityNone.addEventListener('click', selectPriority);
 inputTaskDescription.addEventListener('input', autoSizeTextArea);
 focusedCardOverlay.addEventListener('click', clickFocusedCardOverlay);
 focusedCardWrapper.addEventListener('click', clickFocusedCardOverlay);
+buttonFocusedCardDueDate.addEventListener('click', clickDueDateDropdown);
 buttonFocusedCardList.addEventListener('click', clickListDropdown);
 buttonFocusedCardPriority.addEventListener('click', clickPriorityDropdown);
 buttonFocusedCardDelete.addEventListener('click', deleteCard);

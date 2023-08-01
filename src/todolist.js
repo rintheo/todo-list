@@ -1,3 +1,5 @@
+import format from 'date-fns/format';
+
 class Task {
   constructor(title, description, index) {
     this.title = title;
@@ -6,6 +8,7 @@ class Task {
     this.index = index;
     this.priority = 'none';
     this.list = 'Home';
+    this.dueDate = '';
   }
 
   toggleTaskCompletion() {
@@ -18,6 +21,10 @@ class Task {
 
   setTaskList(list) {
     this.list = list;
+  }
+
+  setTaskDueDate(date) {
+    this.dueDate = date;
   }
 }
 
@@ -39,6 +46,7 @@ tasks[1].setTaskPriority('medium');
 tasks[2].setTaskPriority('high');
 tasks[3].toggleTaskCompletion();
 tasks[4].toggleTaskCompletion();
+tasks.forEach(task => task.dueDate = new Date(task.index));
 
 // console.log(tasks);
 
