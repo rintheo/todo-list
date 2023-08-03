@@ -1,7 +1,8 @@
 import './style.css';
 import * as todolist from './todolist.js';
 import format from 'date-fns/format';
-import parseISO from 'date-fns/parseISO'
+import isToday from 'date-fns/isToday'
+import isTomorrow from 'date-fns/isTomorrow'
 
 const root = document.documentElement;
 
@@ -14,14 +15,8 @@ const buttonUser = document.querySelector('#buttonUser');
 
 // Card Elements
 const main = document.querySelector('.main');
-const cardsActualContainerTopOverflow = document.querySelector('.overflow-top');
-const cardsActualContainerBottomOverflow = document.querySelector('.overflow-bottom');
-const cardsActualContainer = document.querySelector('.cards .container.actual');
-const cardsOngoingContainer = document.querySelector('.cards .container.ongoing');
-const cardsCompletedContainer = document.querySelector('.cards .container.completed');
 const focusedCardOverlay = document.querySelector('#focusedCardOverlay');
 const focusedCardWrapper = document.querySelector('#focusedCardOverlay > .wrapper');
-const addTaskCard = document.querySelector('.card.add');
 const dropdownOverlay = document.querySelector('#dropdownOverlay');
 const dropdownDueDate = document.querySelector('.dropdown.duedate');
 const dropdownDueDateInput = document.querySelector('#dueDateInput');
@@ -46,50 +41,188 @@ const focusedCard = document.querySelector('#focusedCard');
 // Side Bar Elements
 const sidebar = document.querySelector('.sidebar');
 const sidebarOverlay = document.querySelector('#sidebarOverlay');
+const todosToday = document.querySelector('#todosToday');
+const todosNext7Days = document.querySelector('#todosNext7Days');
+const todosCalendar = document.querySelector('#todosCalendar');
+
+// Other Variables
+let todosShowMode = "today";
 
 // -------------------------------------------------------------------------- //
 // Cards -------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
+
+const generateTodoList = () => {
+  removeCardsContainer();
+
+  if (todosShowMode === "today") {
+    const date = new Date();
+    generateCardsContainer(date);
+  } 
+
+  else if (todosShowMode === "7 days") {
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      generateCardsContainer(date);
+    }
+    
+  }
+  
+  // else if (todosShowMode === "calendar") {
+  //   console.log('Calendar Mode!')
+  // }
+
+  fillCardsContainer();
+  document.querySelectorAll('.container.actual').forEach(container => {
+    container.addEventListener('scroll', toggleCardsContainerOverflowGradient);
+    toggleCardsContainerOverflowGradient(container);
+  })
+}
+
+const generateCardsContainer = (date) => {
+  const cards = document.createElement('div');
+  cards.classList.add('cards');
+  
+  const h2 = document.createElement('h2');
+  if (isToday(date)) {
+    h2.textContent = 'Today';
+  } 
+  else if (isTomorrow(date)) {
+    h2.textContent = 'Tomorrow';
+  }
+  else {
+    h2.textContent = format(date, 'EEEE');
+  }
+
+  const h3 = document.createElement('h3');
+  h3.textContent = format(date, 'MMMM d, y');
+
+  const overflowTop = document.createElement('div');
+  const overflowTopInner = document.createElement('div');
+  overflowTop.classList.add('overflow-top');
+  overflowTop.dataset.date = format(date, 'yyyy/MM/dd');
+  overflowTop.appendChild(overflowTopInner);
+
+  const containerActual = document.createElement('div');
+  const containerOngoing = document.createElement('div');
+  const containerCompleted = document.createElement('div');
+  containerOngoing.classList.add('container');
+  containerOngoing.classList.add('ongoing');
+  containerOngoing.dataset.date = format(date, 'yyyy/MM/dd');
+  containerCompleted.classList.add('container');
+  containerCompleted.classList.add('completed');
+  containerCompleted.dataset.date = format(date, 'yyyy/MM/dd');
+  containerActual.classList.add('container');
+  containerActual.classList.add('actual');
+  containerActual.dataset.date = format(date, 'yyyy/MM/dd');
+  containerActual.appendChild(containerOngoing);
+  containerActual.appendChild(containerCompleted);
+
+  const overflowBottom = document.createElement('div');
+  const overflowBottomInner = document.createElement('div');
+  overflowBottom.classList.add('overflow-bottom');
+  overflowBottom.dataset.date = format(date, 'yyyy/MM/dd');
+  overflowBottom.appendChild(overflowBottomInner);
+
+  const containerAdd = document.createElement('div');
+  containerAdd.classList.add('container');
+  containerAdd.classList.add('add');
+  containerAdd.dataset.date = format(date, 'yyyy/MM/dd');
+
+  const cardAdd = document.createElement('div');
+  cardAdd.classList.add('card');
+  cardAdd.classList.add('add');
+  cardAdd.dataset.date = format(date, 'yyyy/MM/dd');
+
+  const buttonDone = document.createElement('button');
+  buttonDone.classList.add('button');
+  buttonDone.classList.add('done');
+
+  const dummy = document.createElement('div');
+  buttonDone.appendChild(dummy);
+
+  const h4 = document.createElement('h4');
+  h4.textContent = 'Add task...';
+
+  cardAdd.appendChild(buttonDone);
+  cardAdd.appendChild(h4);
+  cardAdd.addEventListener('click', showFocusedCard);
+  cardAdd.addEventListener('mouseenter', hoverCard);
+  
+  containerAdd.appendChild(cardAdd);
+  
+  cards.appendChild(h2);
+  cards.appendChild(h3);
+  cards.appendChild(overflowTop);
+  cards.appendChild(containerActual);
+  cards.appendChild(overflowBottom);
+  cards.appendChild(containerAdd);
+
+  main.appendChild(cards);
+  
+  dummy.outerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus-circle-outline</title><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" /></svg>`
+}
+
+const removeCardsContainer = () => {
+  const cardsContainers = document.querySelectorAll('.cards')
+  cardsContainers.forEach(cardsContainer => cardsContainer.remove());
+}
 
 const fillCardsContainer = () => {
   todolist.getTasks().forEach(generateCard);
 }
 
 const clearCardsContainer = () => {
-  while (cardsOngoingContainer.firstElementChild) {
-    cardsOngoingContainer.removeChild(cardsOngoingContainer.firstElementChild);
-  }
-  while (cardsCompletedContainer.firstElementChild) {
-    cardsCompletedContainer.removeChild(cardsCompletedContainer.firstElementChild);
-  }
+  const cardsActualContainers = document.querySelectorAll(`.cards .container.actual`);
+
+  cardsActualContainers.forEach(cardsActualContainer => {
+    cardsActualContainer.childNodes.forEach(child => {
+      while (child.firstChild) {
+        child.removeChild(child.firstChild);
+      }
+    });
+  })
 }
 
 const regenerateCardsContainer = () => {
   clearCardsContainer();
   fillCardsContainer();
-  toggleCardsContainerOverflowGradient();  
+  initializeCardsContainerOverflowGradient();
 }
 
-const toggleCardsContainerOverflowGradient = () => {
-  let scrollTop = cardsActualContainer.scrollTop;
-  let scrollBottom = cardsActualContainer.scrollHeight - 
-                     cardsActualContainer.scrollTop - 
-                     cardsActualContainer.clientHeight;
+const initializeCardsContainerOverflowGradient = () => {
+  document.querySelectorAll('.container.actual').forEach(container => {
+    toggleCardsContainerOverflowGradient(container)
+  });
+}
+
+const toggleCardsContainerOverflowGradient = (e) => {
+  // Use e if container is passed instead of scroll event
+  const containerActual = e.currentTarget ? e.currentTarget : e;
+
+  const overflowTop = document.querySelector(`.overflow-top[data-date="${containerActual.dataset.date}"]`);
+  const overflowBottom = document.querySelector(`.overflow-bottom[data-date="${containerActual.dataset.date}"]`);
+  let scrollTop = containerActual.scrollTop;
+  let scrollBottom = containerActual.scrollHeight - 
+                     containerActual.scrollTop - 
+                     containerActual.clientHeight;
 
   if (scrollTop > 0) {
     scrollTop =  scrollTop > 16 ? 16 : scrollTop;
-    root.style.setProperty('--card-top-overflow-margin', `${scrollTop}px`);  
-    cardsActualContainerTopOverflow.classList.add('overflowing');
+    containerActual.style.marginTop = `${scrollTop}px`;
+    overflowTop.classList.add('overflowing');
   }
   else if (scrollTop === 0) {
-    cardsActualContainerTopOverflow.classList.remove('overflowing');
+    overflowTop.classList.remove('overflowing');
+    containerActual.style.marginTop = `0px`;
   }
 
   if (scrollBottom >= 1) {
-    cardsActualContainerBottomOverflow.classList.add('overflowing');
+    overflowBottom.classList.add('overflowing');
   }
   else if (scrollBottom < 1) {
-    cardsActualContainerBottomOverflow.classList.remove('overflowing');
+    overflowBottom.classList.remove('overflowing');
   }
 }
 
@@ -190,6 +323,20 @@ const animateCompleteCard = (cardIndex) => {
 }
 
 const generateCard = (task) => {
+  const today = new Date(Date.now());
+  let dueDate = task.dueDate;
+
+  // For overdue tasks
+  if (dueDate < today) {
+    dueDate = today;
+  }
+
+  const cardsOngoingContainer = document.querySelector(`.cards .container.ongoing[data-date="${format(dueDate, 'yyyy/MM/dd')}"]`);
+  const cardsCompletedContainer = document.querySelector(`.cards .container.completed[data-date="${format(dueDate, 'yyyy/MM/dd')}"]`);
+
+  // Check if there is a container for the current task with the corresponding due date
+  if (!cardsOngoingContainer) return;
+
   const card = document.createElement('div');
   card.classList.add('card');
   card.dataset.index = task.index;
@@ -297,13 +444,15 @@ const hoverCard = (e) => {
 // -------------------------------------------------------------------------- //
 
 const positionDropdown = (currentButton) => {
-  const dropdownTop = `calc(${currentButton.getBoundingClientRect().top}px - 
-                      ${cardsActualContainer.getBoundingClientRect().top}px +
-                      ${window.getComputedStyle(root).getPropertyValue('--button-width')})`;
-  const dropdownLeft = currentButton.getBoundingClientRect().left - 
-                       cardsActualContainer.getBoundingClientRect().left;
-  root.style.setProperty('--dropdown-top', dropdownTop);
+  const dropdownTop = currentButton.getBoundingClientRect().top;
+  const dropdownLeft = currentButton.getBoundingClientRect().left;
+  root.style.setProperty('--dropdown-top', `${dropdownTop}px`);
   root.style.setProperty('--dropdown-left', `${dropdownLeft}px`);
+}
+
+const positionDropdownReset = (currentButton) => {
+  root.style.setProperty('--dropdown-top', `0px`);
+  root.style.setProperty('--dropdown-left', `0px`);
 }
 
 // Due Date ----------------------------------------------------------------- //
@@ -318,7 +467,6 @@ const clickDueDateDropdown = (e) => {
   showDropdownDueDate(currentButton);
 
   displayCurrentCardDate(currentTask);
-
 }
 
 const showDropdownDueDate = (currentButton) => {
@@ -339,6 +487,7 @@ const hideDropdownDueDate = (e) => {
   dropdownOverlay.removeAttribute('data-index');
   dropdownOverlay.classList.add('visibility-hidden');
   dropdownDueDate.classList.add('visibility-hidden');
+  positionDropdownReset();
 }
 
 const setDropdownDueDateIndex = (index) => {
@@ -356,14 +505,15 @@ const setDueDate = (e) => {
     currentTask.setTaskDueDate(dueDate);
   }
 
-  currentCard.dataset.dueDate = dueDate;
-  if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
+  currentCard.dataset.dueDate = dueDate;  
+  if (!focusedCardOverlay.classList.contains('visibility-hidden')) {
     focusedCard.dataset.dueDate = dueDate;
   }
 
   document.querySelector('.button.duedate.clicked > p').textContent = format(dueDate, 'd LLL');
   hideDropdownDueDate(e);
-  
+
+  regenerateCardsContainer();
 }
 
 const displayCurrentCardDate = (task) => {
@@ -371,7 +521,8 @@ const displayCurrentCardDate = (task) => {
     dropdownDueDateInput.value = format(task.dueDate, 'yyyy-MM-dd');
   }
   else {
-    dropdownDueDateInput.value = format(Date.now(), 'yyyy-MM-dd');
+    const date = new Date(document.querySelector('.button.clicked').closest('.card.focused').dataset.dueDate);
+    dropdownDueDateInput.value = format(date, 'yyyy-MM-dd');
   }
 }
 
@@ -448,6 +599,7 @@ const hideDropdownList = (e) => {
   dropdownOverlay.removeAttribute('data-index');
   dropdownOverlay.classList.add('visibility-hidden');
   dropdownList.classList.add('visibility-hidden');
+  positionDropdownReset();
 }
 
 const displayCurrentCardList = (task) => {
@@ -471,7 +623,7 @@ const selectList = (e) => {
   }
 
   currentCard.dataset.list = selectedList;
-  if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
+  if (!focusedCardOverlay.classList.contains('visibility-hidden')) {
     focusedCard.dataset.list = selectedList;
   }
 
@@ -512,6 +664,7 @@ const hideDropdownPriority = (e) => {
   dropdownOverlay.removeAttribute('data-index');
   dropdownOverlay.classList.add('visibility-hidden');
   dropdownPriority.classList.add('visibility-hidden');
+  positionDropdownReset();
 }
 
 const setDropdownPriorityIndex = (index) => {
@@ -548,7 +701,7 @@ const selectPriority = (e) => {
   }
 
   currentCard.dataset.priority = selectedPriority;
-  if (!focusedCardOverlay.classList.contains('visibility-hiddden')) {
+  if (!focusedCardOverlay.classList.contains('visibility-hidden')) {
     focusedCard.dataset.priority = selectedPriority;
   }
   hideDropdownPriority(e);
@@ -558,27 +711,30 @@ const selectPriority = (e) => {
 
 const deleteCard = (e) => {
   e.stopPropagation();
-  const index = getCardIndex(e);
-  if (!todolist.getTask(index)) return;
+  const currentCardIndex = getCardIndex(e);
+  const currentCard = document.querySelector(`.card:not(.focused)[data-index="${currentCardIndex}"]`);
+  const currentCardActualContainer = currentCard.closest('.container.actual');
+
+  if (!todolist.getTask(currentCardIndex)) return;
 
   cardCoordinates.setBefore();
 
-  todolist.deleteTask(index);
+  todolist.deleteTask(currentCardIndex);
   regenerateCardsContainer();
 
   cardCoordinates.setAfter();
-  animateDeleteCard(index);
+  animateDeleteCard(currentCardIndex, currentCardActualContainer);
   cardCoordinates.clearCards();
 }
 
-const animateDeleteCard = (cardIndex) => {
+const animateDeleteCard = (cardIndex, cardContainer ) => {
   const selectedCardHeight = cardCoordinates.getCard(cardIndex).before.height;
   const upDistance = `calc(var(--card-gap) + ${selectedCardHeight}px)`;
 
   root.style.setProperty('--move-up-distance', `${upDistance}`);
-  cardsActualContainer.classList.add('container-shrinking');
-  cardsActualContainer.addEventListener('animationend', (e) => {
-    cardsActualContainer.classList.remove('container-shrinking')      
+  cardContainer.classList.add('container-shrinking');
+  cardContainer.addEventListener('animationend', (e) => {
+    cardContainer.classList.remove('container-shrinking')      
   });
 
   const otherCards = document.querySelectorAll(`.container:not(.add) .card:not([data-index="${cardIndex}"])`);
@@ -608,7 +764,7 @@ const autoSizeTextArea = () => {
 const clickFocusedCardOverlay = (e) => {
   if (e.target === e.currentTarget) {
     if (todolist.getTasks().some(task => task.index == focusedCard.dataset.index)) {    
-      submitFocusedCard();
+      submitFocusedCard(e);
     }
     else {
       hideFocusedCard();
@@ -640,9 +796,12 @@ const hideFocusedCard = (e) => {
     }
   });
 
-  addTaskCard.removeAttribute('data-index');
-  addTaskCard.removeAttribute('data-priority');
-  addTaskCard.removeAttribute('data-list');
+  document.querySelectorAll('.card.add').forEach(addTaskCard => {
+    addTaskCard.removeAttribute('data-index');
+    addTaskCard.removeAttribute('data-priority');
+    addTaskCard.removeAttribute('data-list');
+  })
+
   focusedCard.classList.add('focus-out');
   focusedCard.addEventListener('animationend', () => {
     focusedCard.classList.remove('focused');
@@ -660,7 +819,16 @@ const showFocusedCard = (e) => {
     (selectedCard.getBoundingClientRect().top + selectedCard.getBoundingClientRect().height / 2) - 
     (focusedCard.getBoundingClientRect().top + focusedCard.getBoundingClientRect().height / 2) ;
   root.style.setProperty('--move-up-distance', `${upDistance}px`);  
-  
+
+  const xDistance = 
+    (selectedCard.getBoundingClientRect().left + selectedCard.getBoundingClientRect().width / 2) - 
+    (focusedCard.getBoundingClientRect().left + focusedCard.getBoundingClientRect().width / 2) ;
+  root.style.setProperty('--move-X-distance', `${xDistance}px`);  
+
+  const xScale = 
+    (selectedCard.getBoundingClientRect().width) / (focusedCard.getBoundingClientRect().width) ;
+  root.style.setProperty('--scale-X', `${xScale}`);  
+    
   selectedCard.classList.add('fade-out');
   focusedCard.classList.add('focus-in');
   focusedCard.classList.add('focused');
@@ -704,29 +872,29 @@ const initializeFocusedCardData = (selectedCard) => {
   }
   else {
     const index = Date.now();
+    const dueDate = new Date(selectedCard.dataset.date);
     buttonFocusedCardSubmit.textContent = 'Add';
     buttonFocusedCardDueDate.dataset.index = index;
     buttonFocusedCardList.dataset.index = index;
     buttonFocusedCardPriority.dataset.index = index;
     buttonFocusedCardDelete.dataset.index = index;
-    document.querySelector('#buttonFocusedCardDueDate > p').textContent = format(Date.now(), 'd LLL');
+    document.querySelector('#buttonFocusedCardDueDate > p').textContent = format(dueDate, 'd LLL');
     document.querySelector('#buttonFocusedCardList > p').textContent = todolist.getLists()[0];
     focusedCard.dataset.index = index;
     focusedCard.dataset.priority = 'none';
     focusedCard.dataset.list = todolist.getLists()[0];
-    focusedCard.dataset.dueDate = new Date(Date.now());
-    addTaskCard.dataset.index = index;
+    focusedCard.dataset.dueDate = dueDate;
+    selectedCard.dataset.index = index;
   }
 }
 
-const submitFocusedCard = () => {
+const submitFocusedCard = (e) => {
   const title = inputTaskTitle.value;
   const description = inputTaskDescription.value;
   const index = focusedCard.dataset.index;
   const priority = focusedCard.dataset.priority;
   const list = focusedCard.dataset.list;
   const dueDate = new Date(focusedCard.dataset.dueDate);
-  console.log(dueDate)
 
   if (todolist.getTasks().some(task => task.index == index)) {    
     todolist.updateTask(title, description, index);
@@ -761,8 +929,9 @@ const toggleSidebarVisibility = () => {
   if ((window.innerWidth <= 600) && (focusedCard.classList.contains('focused'))) {
     hideFocusedCard();
   }
-
 }
+
+
 
 // -------------------------------------------------------------------------- //
 // Searchbox ---------------------------------------------------------------- //
@@ -783,20 +952,27 @@ const expandSearchBoxOnMobile = () => {
   }
 }
 
+const switchTodosShowMode = (e) => {
+  todosToday.classList.remove('selected');
+  todosNext7Days.classList.remove('selected');
+  todosCalendar.classList.remove('selected');
+  e.currentTarget.classList.add('selected');
+  todosShowMode = e.currentTarget.dataset.showMode;
+  generateTodoList();
+}
+
 // -------------------------------------------------------------------------- //
 // Others ------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 
 window.addEventListener('resize', hideFocusedCardOnResize);
 window.addEventListener('resize', autoSizeTextArea);
+// window.addEventListener('resize', positionDropdown);
 
 // Header 
 searchBox.addEventListener('focus', expandSearchBoxOnMobile, {once: true});
 
 //Cards
-cardsActualContainer.addEventListener('scroll', toggleCardsContainerOverflowGradient);
-addTaskCard.addEventListener('click', showFocusedCard);
-addTaskCard.addEventListener('mouseenter', hoverCard);
 dropdownDueDateInput.addEventListener('change', setDueDate);
 dropdownPriorityHigh.addEventListener('click', selectPriority);
 dropdownPriorityMedium.addEventListener('click', selectPriority);
@@ -818,7 +994,10 @@ buttonFocusedCardSubmit.addEventListener('click', submitFocusedCard);
 // Sidebar
 buttonSidebar.addEventListener('click', toggleSidebarVisibility);
 sidebarOverlay.addEventListener('click', toggleSidebarVisibility, {once: true});
+todosToday.addEventListener('click', switchTodosShowMode);
+todosNext7Days.addEventListener('click', switchTodosShowMode);
+todosCalendar.addEventListener('click', switchTodosShowMode);
 
 // Initial generation of cards container
-regenerateCardsContainer();
+generateTodoList();
 setTimeout(() => {document.body.classList.remove('preload')}, 0);
