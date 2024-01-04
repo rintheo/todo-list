@@ -1165,7 +1165,7 @@ svg {
   align-self: start;
   font-size: 0.75rem;
   font-weight: 700;
-  color: red;
+  color: white;
 }
 
 .login-overlay-bottom {
@@ -1180,5 +1180,27 @@ svg {
 
 .login-overlay .new-account-btn {
   width: 15rem;
+}
 
+.login-overlay button.loading {
+  color: rgba(0, 0, 0, 0);
+  background: linear-gradient(
+    90deg,
+    rgb(84, 186, 185) 0%, 
+    rgb(84, 186, 185) 25%, 
+    hsl(179, 43%, 65%) 50%, 
+    rgb(84, 186, 185) 75%, 
+    rgb(84, 186, 185) 100%); 
+  background-size: 200%;
+  animation: loading 0.5s ease-in-out 0s infinite forwards alternate;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 100%;
+  }
 }

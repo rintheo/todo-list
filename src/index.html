@@ -164,15 +164,15 @@
 
     <div class="login-overlay">
       <h1>wasurenai</h1>
-      <form action="" class="form login">
-        <input type="email" placeholder="Email Address">
-        <input type="password" placeholder="Password">
+      <form method="dialog" action="" class="form login">
+        <input id="loginEmail" type="email" placeholder="Email Address" required>
+        <input id="loginPassword" type="password" placeholder="Password" minlength="8" required>
         <p class="form-error display-none">❌ Placeholder Error Placeholder ErrorPlaceholder ErrorPlaceholder Error</p>
         <button type="submit" id="buttonLogin">Log in</button>
       </form>
-      <form action="" class="form signup display-none">
-        <input type="email" placeholder="Email Address">
-        <input type="password" placeholder="Password">
+      <form method="dialog" action="" class="form signup display-none">
+        <input id="signupEmail" type="email" placeholder="Email Address" required>
+        <input id="signupPassword" type="password" placeholder="Password" minlength="8" required>
         <p class="form-error display-none">❌ Placeholder Error Placeholder ErrorPlaceholder ErrorPlaceholder Error</p>
         <button type="submit" id="buttonSignup">Sign up</button>
       </form>
