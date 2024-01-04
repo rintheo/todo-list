@@ -1,7 +1,8 @@
 # Todo-list
-A todo-list made with mostly JavaScript. [View Demo](https://rintheo.github.io/todo-list/)
+A todo-list made with mostly JavaScript. [View Demo](https://rintheo.github.io/todo-list/) 
 
 ## Features
+- Cloud database is implemented and is hosted through Azure. [See Backend Repo](https://github.com/rintheo/todo-list-backend)
 - Add a task with the following information:
   - Title
   - Description
@@ -20,8 +21,4 @@ A todo-list made with mostly JavaScript. [View Demo](https://rintheo.github.io/t
 - Add new lists and view by list
 - Checklists in tasks
 - Search a task
-- Local storage for tasks
 - Possibly refactor the whole code for better organization
-
-## Notes
-- All tasks are always generated from the current date
