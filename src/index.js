@@ -45,6 +45,22 @@ const todosToday = document.querySelector('#todosToday');
 const todosNext7Days = document.querySelector('#todosNext7Days');
 const todosCalendar = document.querySelector('#todosCalendar');
 
+// Login Screen
+const loginScreen = document.querySelector('.login-overlay')
+const buttonLogin = document.querySelector('#buttonLogin');
+const buttonSignup = document.querySelector('#buttonSignup');
+const buttonExistingAccount = document.querySelector('#buttonExistingAccount');
+const buttonNewAccount = document.querySelector('#buttonNewAccount');
+const formLogIn = document.querySelector('.form.login');
+const formSignUp = document.querySelector('.form.signup');
+const formLogInError = document.querySelector('form.login .form-error');
+const formSignUpError = document.querySelector('form.signup .form-error');
+const inputLogInEmail = document.querySelector('#loginEmail');
+const inputLogInPassword = document.querySelector('#loginPassword');
+const inputSignUpEmail = document.querySelector('#signupEmail');
+const inputSignUpPassword = document.querySelector('#signupPassword');
+let token = null;
+
 // Other Variables
 let todosShowMode = "today";
 
@@ -169,8 +185,11 @@ const removeCardsContainer = () => {
   cardsContainers.forEach(cardsContainer => cardsContainer.remove());
 }
 
-const fillCardsContainer = () => {
-  todolist.getTasks().forEach(generateCard);
+const fillCardsContainer = async () => {
+  showLoadingCard();
+  const tasks = await todolist.getTasks(token);
+  tasks.forEach(generateCard);
+  hideLoadingCard();
 }
 
 const clearCardsContainer = () => {
@@ -428,6 +447,18 @@ const generateCard = (task) => {
   } else {
     cardsOngoingContainer.appendChild(card);
   }
+}
+
+const showLoadingCard = () => {
+  const cardsOngoingContainer = document.querySelector(`.cards .container.ongoing`);
+  const card = document.createElement('div');
+  card.classList.add('card', 'loading');
+  cardsOngoingContainer.appendChild(card);  
+}
+
+const hideLoadingCard = () => {
+  const loadingCard = document.querySelector('.card.loading');
+  loadingCard.remove();
 }
 
 const hoverCard = (e) => {
@@ -1003,28 +1034,134 @@ todosCalendar.addEventListener('click', switchTodosShowMode);
 setTimeout(() => {document.body.classList.remove('preload')}, 0);
 
 
+// Login Screen
 
+function hide(element) {
+    element.classList.add('display-none');
+}
 
-// API Tests
-const fetchTask = (async () => {
-  // const body = {
-  //   title: 'test title',
-  //   description: 'test description',
-  //   isCompleted: false,
-  //   index: 99,
-  //   priority: 'High',
-  //   list: 'Home',
-  // }
+function show(element) {
+    element.classList.remove('display-none');
+}
 
-  // fetch('https://localhost:7115/api/TodoTasks', {
-  //   method: 'POST',
-  //   body: JSON.stringify(body),
-  //   headers: {
-  //     "content-type": "application/json"
-  //   }
-  // })
+function disableButton(button) {
+    button.classList.add('loading');
+    button.disabled = true;
+}
 
-  // fetch('https://todo-list-backend.azurewebsites.net/api')
-  //   .then(data => data.json())
-  //   .then(response => console.log(response));
-})();
+function enableButton(button) {
+    button.classList.remove('loading');
+    button.disabled = false;
+}
+
+function resetForms() {
+    formLogIn.reset();
+    formSignUp.reset();
+}
+
+function showSignUpForm() {
+    hide(buttonNewAccount);
+    hide(formLogIn);
+    show(buttonExistingAccount);
+    show(formSignUp);
+    resetForms();
+}
+
+function showLoginForm() {
+    hide(buttonExistingAccount);
+    hide(formSignUp);
+    show(buttonNewAccount);
+    show(formLogIn);
+    resetForms();
+}
+
+function logIn(e) {
+    if (
+        !inputLogInEmail.checkValidity() ||
+        !inputLogInPassword.checkValidity()
+    ) {
+        return false;
+    }
+
+    const button = e.currentTarget;
+    const body = {
+        email: inputLogInEmail.value,
+        password: inputLogInPassword.value,
+    }    
+
+    disableButton(button);
+
+    fetch('https://todo-list-backend.azurewebsites.net/identity/login',{
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            "content-type": "application/json"
+        }
+    })
+    .then(data => data.json())
+    .then(response => {
+        // console.log(response);
+        enableButton(button);
+        if (response.status) {
+            show(formLogInError);
+            formLogInError.textContent="❌ Incorrect login credentials."
+            return;
+        }
+        resetForms();
+        token = response.accessToken;
+        loginScreen.classList.add('visibility-hidden');
+        generateTodoList();
+    })
+}
+
+function signUp(e) {
+    if (
+        !inputSignUpEmail.checkValidity() ||
+        !inputSignUpPassword.checkValidity()
+    ) {
+        return false;
+    }
+
+    const button = e.currentTarget;
+    const body = {
+        email: inputSignUpEmail.value,
+        password: inputSignUpPassword.value,
+    }    
+
+    disableButton(button);
+
+    fetch('https://todo-list-backend.azurewebsites.net/identity/register',{
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            "content-type": "application/json"
+        }
+    })
+    .then(data => {
+        if (!data.ok) {
+            data.json().then(response => {
+                console.log(response);
+                if (response.status) {
+                    show(formSignUpError);
+                    formSignUpError.textContent="❌ Invalid registration."
+                    return;
+                }
+            })
+        } else {
+            show(formSignUpError);
+            formSignUpError.textContent="✔ Successfully registered. You may now login."
+        }
+        enableButton(button);
+        resetForms();
+    })    
+}
+
+inputLogInEmail.addEventListener('click', () => {hide(formLogInError)});
+inputLogInPassword.addEventListener('click', () => {hide(formLogInError)});
+inputSignUpEmail.addEventListener('click', () => {hide(formSignUpError)});
+inputSignUpPassword.addEventListener('click', () => {hide(formSignUpError)});
+
+buttonSignup.addEventListener('click', signUp);
+buttonLogin.addEventListener('click', logIn);
+buttonNewAccount.addEventListener('click', showSignUpForm);
+buttonExistingAccount.addEventListener('click', showLoginForm);

@@ -557,6 +557,19 @@ svg {
   transition: box-shadow 0.25s ease 0s;
 }
 
+.card.loading {
+  height: 91px;
+  background: linear-gradient(
+    90deg,
+    rgb(255, 255, 255) 0%, 
+    rgb(255, 255, 255) 25%, 
+    hsl(0, 0%, 97.5%) 50%, 
+    rgb(255, 255, 255) 75%, 
+    rgb(255, 255, 255)100%); 
+  background-size: 200%;
+  animation: loading 0.5s ease-in-out 0s infinite forwards alternate;
+}
+
 .card[data-priority=high] {
   box-shadow: 0 0 2px 2px hsl(0, 100%, 75%), 2px 2px 2px rgb(0, 0, 0, 0.1);
 }
@@ -1108,6 +1121,15 @@ svg {
   justify-content: center;
   align-items: center;
   color: white;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0s;  
+}
+
+.login-overlay.visibility-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease 0s, visibility 0s ease 0.25s;  
 }
 
 .login-overlay h1 {
