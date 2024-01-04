@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wasurenai</title>
-<script defer src="index.bundle.js"></script><script defer src="todolist.bundle.js"></script></head>
+<script defer src="index.bundle.js"></script><script defer src="todolist.bundle.js"></script><script defer src="login.bundle.js"></script></head>
 <body class="preload">
   <div id="loadOverlay" 
        style="background-color:#fff; 
@@ -160,6 +160,26 @@
         </div>
         <!-- Generate with cards JavaScript -->
       </main>
+    </div>
+
+    <div class="login-overlay">
+      <h1>wasurenai</h1>
+      <form action="" class="form login">
+        <input type="email" placeholder="Email Address">
+        <input type="password" placeholder="Password">
+        <p class="form-error display-none">❌ Placeholder Error Placeholder ErrorPlaceholder ErrorPlaceholder Error</p>
+        <button type="submit" id="buttonLogin">Log in</button>
+      </form>
+      <form action="" class="form signup display-none">
+        <input type="email" placeholder="Email Address">
+        <input type="password" placeholder="Password">
+        <p class="form-error display-none">❌ Placeholder Error Placeholder ErrorPlaceholder ErrorPlaceholder Error</p>
+        <button type="submit" id="buttonSignup">Sign up</button>
+      </form>
+      <div class="login-overlay-bottom">
+        <button id="buttonNewAccount" class="new-account-btn">Create new account</button>
+        <button id="buttonExistingAccount" class="new-account-btn display-none">Log in existing account</button>
+      </div>
     </div>
 
   </div>

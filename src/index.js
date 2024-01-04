@@ -999,5 +999,32 @@ todosNext7Days.addEventListener('click', switchTodosShowMode);
 todosCalendar.addEventListener('click', switchTodosShowMode);
 
 // Initial generation of cards container
-generateTodoList();
+// generateTodoList();
 setTimeout(() => {document.body.classList.remove('preload')}, 0);
+
+
+
+
+// API Tests
+const fetchTask = (async () => {
+  // const body = {
+  //   title: 'test title',
+  //   description: 'test description',
+  //   isCompleted: false,
+  //   index: 99,
+  //   priority: 'High',
+  //   list: 'Home',
+  // }
+
+  // fetch('https://localhost:7115/api/TodoTasks', {
+  //   method: 'POST',
+  //   body: JSON.stringify(body),
+  //   headers: {
+  //     "content-type": "application/json"
+  //   }
+  // })
+
+  // fetch('https://todo-list-backend.azurewebsites.net/api')
+  //   .then(data => data.json())
+  //   .then(response => console.log(response));
+})();
