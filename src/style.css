@@ -1144,6 +1144,7 @@ svg {
     visibility 0s ease 0s;
   visibility: visible;
   opacity: 1;
+  user-select: none;
 }
 
 .login-overlay .form {
@@ -1204,7 +1205,8 @@ svg {
   width: 15rem;
 }
 
-.login-overlay button.loading {
+.login-overlay button.loading,
+#buttonFocusedCardSubmit.loading {
   color: rgba(0, 0, 0, 0);
   background: linear-gradient(
     90deg,

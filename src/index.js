@@ -59,7 +59,8 @@ const inputLogInEmail = document.querySelector('#loginEmail');
 const inputLogInPassword = document.querySelector('#loginPassword');
 const inputSignUpEmail = document.querySelector('#signupEmail');
 const inputSignUpPassword = document.querySelector('#signupPassword');
-let token = null;
+let authToken = null;
+let currentLoggedUserEmail = null;
 
 // Other Variables
 let todosShowMode = "today";
@@ -187,7 +188,7 @@ const removeCardsContainer = () => {
 
 const fillCardsContainer = async () => {
   showLoadingCard();
-  const tasks = await todolist.getTasks(token);
+  const tasks = await todolist.getTasks(authToken);
   tasks.forEach(generateCard);
   hideLoadingCard();
 }
@@ -301,14 +302,24 @@ const cardCoordinates = (() => {
   }
 })()
 
-const completeCard = (e) => {
+const completeCard = async(e) => {
   e.stopPropagation();
   const index = getCardIndex(e);
   const task = todolist.getTask(index);
 
   cardCoordinates.setBefore();
 
+  const title = task.title;
+  const description = task.description;
+  const priority = task.priority;
+  const list = task.list;
+  const dueDate = task.dueDate;
+  const email = task.email;
+
   task.toggleTaskCompletion();
+
+  await todolist.updateTask(title, description, index, priority, list, email, dueDate, task.isCompleted, authToken);
+
   regenerateCardsContainer();
 
   cardCoordinates.setAfter();
@@ -740,7 +751,7 @@ const selectPriority = (e) => {
 
 // Delete ------------------------------------------------------------------- //
 
-const deleteCard = (e) => {
+const deleteCard = async (e) => {
   e.stopPropagation();
   const currentCardIndex = getCardIndex(e);
   const currentCard = document.querySelector(`.card:not(.focused)[data-index="${currentCardIndex}"]`);
@@ -750,7 +761,7 @@ const deleteCard = (e) => {
 
   cardCoordinates.setBefore();
 
-  todolist.deleteTask(currentCardIndex);
+  await todolist.deleteTask(currentCardIndex);
   regenerateCardsContainer();
 
   cardCoordinates.setAfter();
@@ -792,9 +803,11 @@ const autoSizeTextArea = () => {
   inputTaskDescription.style.height = (inputTaskDescription.scrollHeight) + "px";
 }
 
-const clickFocusedCardOverlay = (e) => {
+const clickFocusedCardOverlay = async (e) => {
+  const tasks = await todolist.getTasks(authToken);  
+
   if (e.target === e.currentTarget) {
-    if (todolist.getTasks().some(task => task.index == focusedCard.dataset.index)) {    
+    if (tasks.some(task => task.index == focusedCard.dataset.index)) {    
       submitFocusedCard(e);
     }
     else {
@@ -919,23 +932,29 @@ const initializeFocusedCardData = (selectedCard) => {
   }
 }
 
-const submitFocusedCard = (e) => {
+const submitFocusedCard = async (e) => {
   const title = inputTaskTitle.value;
   const description = inputTaskDescription.value;
   const index = focusedCard.dataset.index;
   const priority = focusedCard.dataset.priority;
   const list = focusedCard.dataset.list;
   const dueDate = new Date(focusedCard.dataset.dueDate);
+  const email = currentLoggedUserEmail;
+  const tasks = await todolist.getTasks(authToken);  
+  const isCompleted = false;
 
-  if (todolist.getTasks().some(task => task.index == index)) {    
-    todolist.updateTask(title, description, index);
+  disableButton(buttonFocusedCardSubmit);
+
+  if (tasks.some(task => task.index == index)) {        
+    const task = todolist.getTask(index); 
+    isCompleted = task.isCompleted;
+    await todolist.updateTask(title, description, index, priority, list, email, dueDate, isCompleted, authToken);
   }
   else {
-    todolist.addTask(title, description, index);
+    await todolist.addTask(title, description, index, priority, list, email, dueDate, isCompleted, authToken);
   }
-  todolist.getTask(index).setTaskPriority(priority);
-  todolist.getTask(index).setTaskList(list);
-  todolist.getTask(index).setTaskDueDate(dueDate);
+
+  enableButton(buttonFocusedCardSubmit);
 
   regenerateCardsContainer();
   hideFocusedCard();
@@ -1108,8 +1127,12 @@ function logIn(e) {
             return;
         }
         resetForms();
-        token = response.accessToken;
+        authToken = response.accessToken;
+        currentLoggedUserEmail = body.email;
         loginScreen.classList.add('visibility-hidden');
+        loginScreen.addEventListener('transitionend', () => {
+          loginScreen.classList.add('display-none');
+        })
         generateTodoList();
     })
 }
@@ -1165,3 +1188,5 @@ buttonSignup.addEventListener('click', signUp);
 buttonLogin.addEventListener('click', logIn);
 buttonNewAccount.addEventListener('click', showSignUpForm);
 buttonExistingAccount.addEventListener('click', showLoginForm);
+
+generateTodoList();
