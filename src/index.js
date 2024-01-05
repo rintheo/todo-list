@@ -732,17 +732,26 @@ const displayCurrentCardPriority = (task) => {
   });
 }
 
-const selectPriority = (e) => {
+const selectPriority = async (e) => {
   const selectedPriority = document.querySelector('.dropdown input[name="priority"]:checked').value;
   const currentCardIndex = e.currentTarget.dataset.index;
   const currentCard = document.querySelector(`.card[data-index="${currentCardIndex}"]`);
-
+  
+  // During card updates only
   if (todolist.doesTaskExist(currentCardIndex)) {
-    const currentTask = todolist.getTask(currentCardIndex);
+    const currentTask = todolist.getTask(currentCardIndex);  
+    const title = currentTask.title;
+    const description = currentTask.description;
+    const list = currentTask.list;
+    const dueDate = currentTask.dueDate;
+    const email = currentTask.email;
+    const isCompleted = currentTask.isCompleted;
     currentTask.setTaskPriority(selectedPriority);
+    await todolist.updateTask(title, description, currentCardIndex, selectedPriority, list, email, dueDate, isCompleted, authToken); 
   }
 
   currentCard.dataset.priority = selectedPriority;
+  // During adding new card
   if (!focusedCardOverlay.classList.contains('visibility-hidden')) {
     focusedCard.dataset.priority = selectedPriority;
   }
