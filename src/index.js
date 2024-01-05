@@ -761,7 +761,7 @@ const deleteCard = async (e) => {
 
   cardCoordinates.setBefore();
 
-  await todolist.deleteTask(currentCardIndex);
+  await todolist.deleteTask(currentCardIndex, authToken);
   regenerateCardsContainer();
 
   cardCoordinates.setAfter();
@@ -941,7 +941,7 @@ const submitFocusedCard = async (e) => {
   const dueDate = new Date(focusedCard.dataset.dueDate);
   const email = currentLoggedUserEmail;
   const tasks = await todolist.getTasks(authToken);  
-  const isCompleted = false;
+  let isCompleted = false;
 
   disableButton(buttonFocusedCardSubmit);
 
@@ -1188,5 +1188,3 @@ buttonSignup.addEventListener('click', signUp);
 buttonLogin.addEventListener('click', logIn);
 buttonNewAccount.addEventListener('click', showSignUpForm);
 buttonExistingAccount.addEventListener('click', showLoginForm);
-
-generateTodoList();

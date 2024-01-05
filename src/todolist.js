@@ -160,7 +160,7 @@ const updateTask = async (title, description, index, priority, list, email, dueD
   })
 }
 
-const deleteTask = async (index) => {
+const deleteTask = async (index, token) => {
   const id = getTask(index).id;
 
   return new Promise((resolve) => {
